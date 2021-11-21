@@ -1,0 +1,24 @@
+.board {
+    display: inline-grid;
+    border: 1px solid black;
+}
+
+.square {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dark-square {
+    background-color: lightblue;
+}
+
+.light-square {
+    background-color: white;
+}
+
+.piece {
+    user-select: none;
+    width: 100%;
+}
+
