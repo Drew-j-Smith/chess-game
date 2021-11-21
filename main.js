@@ -22,27 +22,23 @@ function pieceMovement() {
     $(".piece").mouseup(function () {
         $(this).css('z-index', '1');
     });
-    $(".piece").droppable({
-        accept: function (dropElem) {
-            return true;
-        },
-        drop: function (event, ui) {
-            if ($(this) !== $(ui.draggable)) {
-                var parent = $(this).parent();
-                $(this).remove();
-                parent.append(ui.draggable);
-                $(ui.draggable).css({ "left": 0, "top": 0 });
-            }
-        }
-    });
     $(".square").droppable({
         accept: function (dropElem) {
             return true;
         },
         drop: function (event, ui) {
-            // $(this).children().remove();
-            $(this).append(ui.draggable);
             $(ui.draggable).css({ "left": 0, "top": 0 });
+            if ($(this).find(ui.draggable).length == 0) {
+                if ($(this).children().length == 0) {
+                    var audio = new Audio('./public_sound_standard_Move.mp3');
+                } else {
+                    var audio = new Audio('./public_sound_standard_Capture.mp3');
+                }
+                audio.play();
+
+                $(this).children().remove();
+                $(this).append(ui.draggable);
+            }
         }
     });
 }
