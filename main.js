@@ -24,27 +24,24 @@ function pieceMovement() {
     });
     $(".square").droppable({
         accept: function (dropElem) {
+            if ($(this).find(dropElem).length == 1) {
+                return false;
+            }
             return true;
         },
         drop: function (event, ui) {
             $(ui.draggable).css({ "left": 0, "top": 0 });
-            if ($(this).find(ui.draggable).length == 0) { // could remove test in future
-                if ($(this).children().length == 0) {
-                    var audio = new Audio('./public_sound_standard_Move.mp3');
-                } else {
-                    var audio = new Audio('./public_sound_standard_Capture.mp3');
-                }
-                audio.play();
-
-                $(this).children().remove();
-                $(this).append(ui.draggable);
+            if ($(this).children().length == 0) {
+                var audio = new Audio('./public_sound_standard_Move.mp3');
+            } else {
+                var audio = new Audio('./public_sound_standard_Capture.mp3');
             }
+            audio.play();
+
+            $(this).children().remove();
+            $(this).append(ui.draggable);
         }
     });
-}
-
-function clearBoard() {
-    $(".board").children("*").children("*").remove();
 }
 
 $(function generatePieces() {
@@ -52,7 +49,7 @@ $(function generatePieces() {
 })
 
 async function loadFen(fen) {
-    clearBoard();
+    $(".piece").remove();
     var pos = 0;
     let data = await $.getJSON("./pictures.json");
     for (var i = 0; i < fen.length; i++) {
