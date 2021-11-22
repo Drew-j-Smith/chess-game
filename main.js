@@ -4,7 +4,7 @@ $(function generateBoard() {
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            $(".board").append("<div class=\"" + (i * 8 + j) + " " + (i % 2 != j % 2 ? "dark" : "light") + "-square\"></div>");
+            $(".board").append(`<div class="${i % 2 != j % 2 ? "dark" : "light"}-square"></div>`);
         }
     }
     $(".board").children("*").addClass("square");
@@ -50,14 +50,15 @@ $(function generatePieces() {
 
 async function loadFen(fen) {
     $(".piece").remove();
+    // alert(new Chess(fen).fen());
     var pos = 0;
     let data = await $.getJSON("./pictures.json");
     for (var i = 0; i < fen.length; i++) {
         if (pos >= 64)
             break;
         if (fen[i] in data) {
-            $("." + pos).append("<img src=\"" + data[fen[i]] + "\">");
             pos++;
+            $(`.board div:nth-child(${pos})`).append(`<img src="${data[fen[i]]}">`);
             continue;
         }
         if (fen[i] == "/") {
