@@ -87,6 +87,9 @@ class Chess {
             }
             count++;
         }
+        if (count > 0) {
+            res += count;
+        }
         return `${res} ${this.turn} ${this.castlingRights} ${this.enPassent} ${this.fiftyMove} ${this.moveCount}`
     }
 }
