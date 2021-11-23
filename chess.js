@@ -63,6 +63,50 @@ class Chess {
 
     state() {
         // TODO
+        // returns normal, check, checkmate, 50move
+    }
+
+    findCheckingPieces() {
+        let checkingPieces = [];
+
+        let kingPos;
+        if (this.color == "w") {
+            kingPos = this.board.find(element => element == "K");
+        } else {
+            kingPos = this.board.find(element => element == "k");
+        }
+        let file = kingPos % 8;
+        let rank = (kingPos - file) / 8;
+
+        let isValid = (el) => 0 <= file + el[0] && file + el[0] < 8 && 0 <= rank + el[1] && rank + el[1] < 8;
+        
+
+        // bishop/queen/pawn check
+        const diagonals = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+        diagonals.forEach(element => {
+            if (isValid(element)) {
+
+            }
+        })
+        
+
+        // rook/queen check
+        const filesAndRanks = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+        filesAndRanks.forEach(element => {
+            if (isValid(element)) {
+                
+            }
+        })
+
+        // knight check
+        const knightMoves = [[2, 1], [1, 2], [2, -1], [1, -2], [-2, 1], [-1, 2], [-2, -1], [-1, -2]];
+        knightMoves.forEach(element => {
+            if (isValid(element)) {
+                
+            }
+        })
+
+        
     }
 
     fen() {
