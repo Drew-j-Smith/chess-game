@@ -82,40 +82,62 @@ class Chess {
         let kingPos;
         let oppositePieceSet;
         if (this.color == "w") {
-            kingPos = this.board.find(element => element == "K");
+            kingPos = this.board.findIndex(element => element == "K");
             oppositePieceSet = this.blackPieceSet;
         } else {
-            kingPos = this.board.find(element => element == "k");
+            kingPos = this.board.findIndex(element => element == "k");
             oppositePieceSet = this.whitePieceSet;
         }
         let file = kingPos % 8;
         let rank = (kingPos - file) / 8;
 
-        let isValid = (el) => 0 <= file + el[0] && file + el[0] < 8 && 0 <= rank + el[1] && rank + el[1] < 8;
+        let isValid = (pos) =>
+            0 <= file + pos[0] &&
+            file + pos[0] < 8 &&
+            0 <= rank + pos[1] &&
+            rank + pos[1] < 8;
+        let isInbound = (pos) => 0 <= pos && pos < 64;
+        let addRankAndFileToIndex = (index, el) => index + el[0] + el[1] * 8;
 
 
         // bishop/queen/pawn check
         [[1, 1], [1, -1], [-1, 1], [-1, -1]].filter(isValid).forEach(element => {
-
-        })
+            let pos = addRankAndFileToIndex(kingPos, element);
+            // TODO check pawns
+            while (isInbound(pos) && this.board[pos] == "") {
+                pos = addRankAndFileToIndex(pos, element);
+            }
+            if (!isInbound(pos)) return;
+            if (!oppositePieceSet.has(this.board[pos])) return;
+            if (this.board[pos].toLowerCase() != "b" &&
+                this.board[pos].toLowerCase() != "q") return;
+            checkingPieces.push(pos);
+        });
 
 
         // rook/queen check
         [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(isValid).forEach(element => {
-
-        })
+            let pos = addRankAndFileToIndex(kingPos, element);
+            while (isInbound(pos) && this.board[pos] == "") {
+                pos = addRankAndFileToIndex(pos, element);
+            }
+            if (!(isInbound(pos))) return;
+            if (!oppositePieceSet.has(this.board[pos])) return;
+            if (this.board[pos].toLowerCase() != "r" &&
+                this.board[pos].toLowerCase() != "q") return;
+            checkingPieces.push(pos);
+        });
 
         // knight check
         [[2, 1], [1, 2], [2, -1], [1, -2], [-2, 1], [-1, 2], [-2, -1], [-1, -2]]
-        .filter(isValid).forEach(element => {
+            .filter(isValid).forEach(element => {
+                let pos = addRankAndFileToIndex(kingPos, element);
+                if (!oppositePieceSet.has(this.board[pos])) return;
+                if (this.board[pos].toLowerCase() != "n") return;
+                checkingPieces.push(pos);
+            });
 
-            let pos = kingPos + element[0] + element[1] * 8;
-            if (this.board[pos].toLowerCase() == "n" && oppositePieceSet.has(this.board[pos])) {
-                checkingPieces.append(pos);
-            }
-        })
-
-
+        return checkingPieces;
     }
 
     fen() {

@@ -42,6 +42,7 @@ function pieceMovement() {
 
             chess.move(ui.draggable.parent().index(), $(this).index());
             // alert(chess.fen());
+            alert(chess.findCheckingPieces());
             $(this).children().remove();
             $(this).append(ui.draggable);
         }
