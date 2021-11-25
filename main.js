@@ -1,3 +1,5 @@
+var chess;
+
 $(function generateBoard() {
     $(".board").css("grid-template-columns", "100px ".repeat(8));
     $(".board").css("grid-template-rows", "100px ".repeat(8));
@@ -28,10 +30,7 @@ function pieceMovement() {
     });
     $(".square").droppable({
         accept: function (dropElem) {
-            if ($(this).find(dropElem).length == 1) {
-                return false;
-            }
-            return true;
+            return chess.valid(dropElem.parent().index(), $(this).index());
         },
         drop: function (event, ui) {
             if ($(this).children().length == 0) {
@@ -41,6 +40,8 @@ function pieceMovement() {
             }
             audio.play();
 
+            chess.move(ui.draggable.parent().index(), $(this).index());
+            // alert(chess.fen());
             $(this).children().remove();
             $(this).append(ui.draggable);
         }
@@ -53,7 +54,7 @@ $(function generatePieces() {
 
 async function loadFen(fen) {
     $(".piece").remove();
-    // alert(new Chess(fen).fen());
+    chess = new Chess(fen);
     var pos = 0;
     let data = await $.getJSON("./pictures.json");
     for (var i = 0; i < fen.length; i++) {

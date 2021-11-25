@@ -1,6 +1,8 @@
 class Chess {
 
-    pieceSet = new Set(["r", "n", "b", "q", "k", "p", "R", "N", "B", "Q", "K", "P"]);
+    whitePieceSet = new Set(["R", "N", "B", "Q", "K", "P"]);
+    blackPieceSet = new Set(["r", "n", "b", "q", "k", "p"]);
+    pieceSet = new Set([...this.whitePieceSet, ...this.blackPieceSet]);
 
     constructor(fen) {
         let fenArr = fen.split(' ');
@@ -33,6 +35,14 @@ class Chess {
     }
 
     valid(start, dst) {
+        if (start == dst) return false;
+        if (this.turn == "w") {
+            if (this.blackPieceSet.has(this.board[start])) return false;
+            if (this.whitePieceSet.has(this.board[dst])) return false;
+        } else {
+            if (this.whitePieceSet.has(this.board[start])) return false;
+            if (this.blackPieceSet.has(this.board[dst])) return false;
+        }
         switch (this.board[start]) {
             case "":
                 return false;
@@ -50,8 +60,8 @@ class Chess {
             this.fiftyMove++;
         }
 
-        this.board[dst] == this.board[start];
-        this.board[start] == "";
+        this.board[dst] = this.board[start];
+        this.board[start] = "";
 
         if (this.turn == "w") {
             this.turn = "b";
@@ -70,50 +80,49 @@ class Chess {
         let checkingPieces = [];
 
         let kingPos;
+        let oppositePieceSet;
         if (this.color == "w") {
             kingPos = this.board.find(element => element == "K");
+            oppositePieceSet = this.blackPieceSet;
         } else {
             kingPos = this.board.find(element => element == "k");
+            oppositePieceSet = this.whitePieceSet;
         }
         let file = kingPos % 8;
         let rank = (kingPos - file) / 8;
 
         let isValid = (el) => 0 <= file + el[0] && file + el[0] < 8 && 0 <= rank + el[1] && rank + el[1] < 8;
-        
+
 
         // bishop/queen/pawn check
-        const diagonals = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-        diagonals.forEach(element => {
-            if (isValid(element)) {
+        [[1, 1], [1, -1], [-1, 1], [-1, -1]].filter(isValid).forEach(element => {
 
-            }
         })
-        
+
 
         // rook/queen check
-        const filesAndRanks = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-        filesAndRanks.forEach(element => {
-            if (isValid(element)) {
-                
-            }
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(isValid).forEach(element => {
+
         })
 
         // knight check
-        const knightMoves = [[2, 1], [1, 2], [2, -1], [1, -2], [-2, 1], [-1, 2], [-2, -1], [-1, -2]];
-        knightMoves.forEach(element => {
-            if (isValid(element)) {
-                
+        [[2, 1], [1, 2], [2, -1], [1, -2], [-2, 1], [-1, 2], [-2, -1], [-1, -2]]
+        .filter(isValid).forEach(element => {
+
+            let pos = kingPos + element[0] + element[1] * 8;
+            if (this.board[pos].toLowerCase() == "n" && oppositePieceSet.has(this.board[pos])) {
+                checkingPieces.append(pos);
             }
         })
 
-        
+
     }
 
     fen() {
         let res = "";
         let count = 0;
         for (let i = 0; i < 64; i++) {
-            
+
             if (i != 0 && i % 8 == 0) {
                 if (count > 0) {
                     res += count;
