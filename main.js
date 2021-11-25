@@ -13,14 +13,18 @@ $(function generateBoard() {
 function pieceMovement() {
     $(".piece").draggable({
         scroll: false,
-        revert: "invalid",
-        revertDuration: 0
-    });
-    $(".piece").mousedown(function () {
-        $(this).css('z-index', '1000');
-    });
-    $(".piece").mouseup(function () {
-        $(this).css('z-index', '1');
+        revert: true,
+        revertDuration: 0,
+        zIndex: 100,
+        helper: "clone",
+        cursorAt: { top: 50, left: 50 },
+        appendTo: ".board",
+        start: function() {
+            $(this).parent().addClass("dragging");
+        },
+        stop: function() {
+            $(".dragging").removeClass("dragging");
+        }
     });
     $(".square").droppable({
         accept: function (dropElem) {
@@ -30,7 +34,6 @@ function pieceMovement() {
             return true;
         },
         drop: function (event, ui) {
-            $(ui.draggable).css({ "left": 0, "top": 0 });
             if ($(this).children().length == 0) {
                 var audio = new Audio('./public_sound_standard_Move.mp3');
             } else {
