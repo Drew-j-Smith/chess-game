@@ -86,16 +86,27 @@ class Chess {
             case "k":
             case "K": {
                 let direction = this.ranksAndFiles.concat(this.diagonals).find(element =>
-                    relativeEqual(element[0], diff[0]) &&
-                    relativeEqual(element[1], diff[1]));
+                    element[0] === diff[0] &&
+                    element[1] === diff[1]);
                 if (!direction) return false;
                 break;
             }
-            case "p":
+            case "p": {
+                let direction = [[-1, 1], [0, 1], [1, 1], [0, 2]].find(element =>
+                    element[0] === diff[0] &&
+                    element[1] === diff[1]);
+                if (!direction) return false;
                 break;
-            case "P":
+            }
+            case "P": {
+                let direction = [[-1, -1], [0, -1], [1, -1], [0, -2]].find(element =>
+                    element[0] === diff[0] &&
+                    element[1] === diff[1]);
+                if (!direction) return false;
                 break;
+            }
         }
+        // TODO make sure not in check
         return true;
     }
 
