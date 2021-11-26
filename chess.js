@@ -76,27 +76,14 @@ class Chess {
         // returns normal, check, checkmate, 50move
     }
 
-    getOppositePieceSet(color) {
-        if (color == "w") {
-            return this.blackPieceSet;
-        } else {
-            return this.whitePieceSet;
-        }
-    }
-
-    getKingPos(color) {
-        let kingIndex = this.board.findIndex(element =>
-            color == "w" && element == "K" ||
-            color == "b" && element == "k");
-        return [kingIndex % 8, (kingIndex - kingIndex % 8) / 8];
-    }
-
     findCheckingPieces(color) {
         let checkingPieces = [];
 
-        let kingPos = this.getKingPos(color);
-        let oppositePieceSet = this.getOppositePieceSet(color);
-        // alert(color + " " + kingPos + " " + [...oppositePieceSet])
+        let kingIndex = this.board.findIndex(element =>
+            color == "w" && element == "K" ||
+            color == "b" && element == "k");
+        let kingPos = [kingIndex % 8, (kingIndex - kingIndex % 8) / 8];
+        let oppositePieceSet = color == "w" ? this.blackPieceSet : this.whitePieceSet;
 
         let isValid = (pos) =>
             0 <= pos[0] &&
@@ -106,16 +93,21 @@ class Chess {
         let isValidRelative = (pos) => isValid(addVec(pos, kingPos));
         let addVec = (first, second) => [first[0] + second[0], first[1] + second[1]];
         let posToPiece = (pos) => this.board[pos[0] + pos[1] * 8];
-
-
-        // bishop/queen/pawn check
-        [[1, 1], [1, -1], [-1, 1], [-1, -1]].filter(isValidRelative).forEach(element => {
+        let findPiece = (element) => {
             let pos = addVec(kingPos, element);
             while (isValid(pos) && posToPiece(pos) == "") {
                 pos = addVec(pos, element);
             }
             if (!isValid(pos)) return;
             if (!oppositePieceSet.has(posToPiece(pos))) return;
+            return pos;
+        }
+
+
+        // bishop/queen/pawn check
+        [[1, 1], [1, -1], [-1, 1], [-1, -1]].filter(isValidRelative).forEach(element => {
+            let pos = findPiece(element);
+            if (!pos) return;
             if (!new Set(["b", "q", "p"]).has(posToPiece(pos).toLowerCase())) return;
             if (posToPiece(pos).toLowerCase() == "p") {
                 if (color == "w" && element[1] > 0) return;
@@ -129,12 +121,8 @@ class Chess {
 
         // rook/queen check
         [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(isValidRelative).forEach(element => {
-            let pos = addVec(kingPos, element);
-            while (isValid(pos) && posToPiece(pos) == "") {
-                pos = addVec(pos, element);
-            }
-            if (!(isValid(pos))) return;
-            if (!oppositePieceSet.has(posToPiece(pos))) return;
+            let pos = findPiece(element);
+            if (!pos) return;
             if (posToPiece(pos).toLowerCase() != "r" &&
                 posToPiece(pos).toLowerCase() != "q") return;
             checkingPieces.push(pos);
