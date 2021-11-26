@@ -76,64 +76,71 @@ class Chess {
         // returns normal, check, checkmate, 50move
     }
 
-    findCheckingPieces() {
+    getOppositePieceSet(color) {
+        if (color == "w") {
+            return this.blackPieceSet;
+        } else {
+            return this.whitePieceSet;
+        }
+    }
+
+    getKingPos(color) {
+        let kingIndex = this.board.findIndex(element =>
+            color == "w" && element == "K" ||
+            color == "b" && element == "k");
+        return [kingIndex % 8, (kingIndex - kingIndex % 8) / 8];
+    }
+
+    findCheckingPieces(color) {
         let checkingPieces = [];
 
-        let kingPos;
-        let oppositePieceSet;
-        if (this.color == "w") {
-            kingPos = this.board.findIndex(element => element == "K");
-            oppositePieceSet = this.blackPieceSet;
-        } else {
-            kingPos = this.board.findIndex(element => element == "k");
-            oppositePieceSet = this.whitePieceSet;
-        }
-        let file = kingPos % 8;
-        let rank = (kingPos - file) / 8;
+        let kingPos = this.getKingPos(color);
+        let oppositePieceSet = this.getOppositePieceSet(color);
+        // alert(color + " " + kingPos + " " + [...oppositePieceSet])
 
         let isValid = (pos) =>
-            0 <= file + pos[0] &&
-            file + pos[0] < 8 &&
-            0 <= rank + pos[1] &&
-            rank + pos[1] < 8;
-        let isInbound = (pos) => 0 <= pos && pos < 64;
-        let addRankAndFileToIndex = (index, el) => index + el[0] + el[1] * 8;
+            0 <= kingPos[0] + pos[0] &&
+            kingPos[0] + pos[0] < 8 &&
+            0 <= kingPos[1] + pos[1] &&
+            kingPos[1] + pos[1] < 8;
+        let addVec = (first, second) => [first[0] + second[0], first[1] + second[1]];
+        let posToPiece = (pos) => this.board[pos[0] + pos[1] * 8];
 
 
         // bishop/queen/pawn check
         [[1, 1], [1, -1], [-1, 1], [-1, -1]].filter(isValid).forEach(element => {
-            let pos = addRankAndFileToIndex(kingPos, element);
+            let pos = addVec(kingPos, element);
             // TODO check pawns
-            while (isInbound(pos) && this.board[pos] == "") {
-                pos = addRankAndFileToIndex(pos, element);
+            while (isValid(pos) && posToPiece(pos) == "") {
+                pos = addVec(pos, element);
             }
-            if (!isInbound(pos)) return;
-            if (!oppositePieceSet.has(this.board[pos])) return;
-            if (this.board[pos].toLowerCase() != "b" &&
-                this.board[pos].toLowerCase() != "q") return;
+            if (!isValid(pos)) return;
+            if (!oppositePieceSet.has(posToPiece(pos))) return;
+            if (posToPiece(pos).toLowerCase() != "b" &&
+                posToPiece(pos).toLowerCase() != "q") return;
             checkingPieces.push(pos);
         });
 
 
         // rook/queen check
         [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(isValid).forEach(element => {
-            let pos = addRankAndFileToIndex(kingPos, element);
-            while (isInbound(pos) && this.board[pos] == "") {
-                pos = addRankAndFileToIndex(pos, element);
+            let pos = addVec(kingPos, element);
+            while (isValid(pos) && posToPiece(pos) == "") {
+                pos = addVec(pos, element);
             }
-            if (!(isInbound(pos))) return;
-            if (!oppositePieceSet.has(this.board[pos])) return;
-            if (this.board[pos].toLowerCase() != "r" &&
-                this.board[pos].toLowerCase() != "q") return;
+            if (!(isValid(pos))) return;
+            if (!oppositePieceSet.has(posToPiece(pos))) return;
+            if (posToPiece(pos).toLowerCase() != "r" &&
+                posToPiece(pos).toLowerCase() != "q") return;
             checkingPieces.push(pos);
         });
 
         // knight check
         [[2, 1], [1, 2], [2, -1], [1, -2], [-2, 1], [-1, 2], [-2, -1], [-1, -2]]
             .filter(isValid).forEach(element => {
-                let pos = addRankAndFileToIndex(kingPos, element);
-                if (!oppositePieceSet.has(this.board[pos])) return;
-                if (this.board[pos].toLowerCase() != "n") return;
+                let pos = addVec(kingPos, element);
+                if (!oppositePieceSet.has(posToPiece(pos))) return;
+                if (posToPiece(pos).toLowerCase() != "n") return;
                 checkingPieces.push(pos);
             });
 

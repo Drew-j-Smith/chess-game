@@ -42,7 +42,7 @@ function pieceMovement() {
 
             chess.move(ui.draggable.parent().index(), $(this).index());
             // alert(chess.fen());
-            alert(chess.findCheckingPieces());
+            alert(`"${chess.findCheckingPieces("w")}"\n"${chess.findCheckingPieces("b")}"`);
             $(this).children().remove();
             $(this).append(ui.draggable);
         }
