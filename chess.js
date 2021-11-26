@@ -3,16 +3,17 @@ class Chess {
     whitePieceSet = new Set(["R", "N", "B", "Q", "K", "P"]);
     blackPieceSet = new Set(["r", "n", "b", "q", "k", "p"]);
     pieceSet = new Set([...this.whitePieceSet, ...this.blackPieceSet]);
+    diagonals = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+    ranksAndFiles = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    knightMoves = [[2, 1], [1, 2], [2, -1], [1, -2], [-2, 1], [-1, 2], [-2, -1], [-1, -2]];
 
     constructor(fen) {
         let fenArr = fen.split(' ');
 
         this.board = [];
         let boardStr = fenArr[0];
-        let pos = 0;
         for (let i = 0; i < boardStr.length; i++) {
             if (this.pieceSet.has(boardStr[i])) {
-                pos++;
                 this.board.push(boardStr[i]);
                 continue;
             }
@@ -20,12 +21,10 @@ class Chess {
                 continue;
             }
             let number = parseInt(boardStr[i], 10);
-            pos += number;
             for (let j = 0; j < number; j++) {
                 this.board.push("");
             }
         }
-
 
         this.turn = fenArr[1];
         this.castlingRights = fenArr[2];
@@ -38,6 +37,8 @@ class Chess {
     posToPiece = (pos) => this.board[pos[0] + pos[1] * 8];
 
     valid(start, dst) {
+        let diff = [dst[0] - start[0], dst[1] - start[1]];
+        let relativeEqual = (el1, el2) => (el1 > 0) === (el2 > 0) && (el1 < 0) === (el2 < 0);
         if (start[0] === dst[0] && start[1] === dst[1]) return false;
         if (this.turn === "w") {
             if (this.blackPieceSet.has(this.posToPiece(start))) return false;
@@ -49,7 +50,51 @@ class Chess {
         switch (this.posToPiece(start)) {
             case "":
                 return false;
-            //TODO
+            case "r":
+            case "R": {
+                let direction = this.ranksAndFiles.find(element =>
+                    relativeEqual(element[0], diff[0]) &&
+                    relativeEqual(element[1], diff[1]));
+                if (!direction) return false;
+                break;
+            }
+            case "n":
+            case "N": {
+                let direction = this.knightMoves.find(element =>
+                    element[0] === diff[0] &&
+                    element[1] === diff[1]);
+                if (!direction) return false;
+                break;
+            }
+            case "b":
+            case "B": {
+                if (Math.abs(diff[0]) !== Math.abs(diff[1])) return false;
+                let direction = this.diagonals.find(element =>
+                    relativeEqual(element[0], diff[0]) &&
+                    relativeEqual(element[1], diff[1]));
+                if (!direction) return false;
+                break;
+            }
+            case "q":
+            case "Q": {
+                let direction = this.ranksAndFiles.concat(this.diagonals).find(element =>
+                    relativeEqual(element[0], diff[0]) &&
+                    relativeEqual(element[1], diff[1]));
+                if (!direction) return false;
+                break;
+            }
+            case "k":
+            case "K": {
+                let direction = this.ranksAndFiles.concat(this.diagonals).find(element =>
+                    relativeEqual(element[0], diff[0]) &&
+                    relativeEqual(element[1], diff[1]));
+                if (!direction) return false;
+                break;
+            }
+            case "p":
+                break;
+            case "P":
+                break;
         }
         return true;
     }
@@ -107,7 +152,7 @@ class Chess {
 
 
         // bishop/queen/pawn check
-        [[1, 1], [1, -1], [-1, 1], [-1, -1]].filter(isValidRelative).forEach(element => {
+        this.diagonals.filter(isValidRelative).forEach(element => {
             let pos = findPiece(element);
             if (!pos) return;
             if (!new Set(["b", "q", "p"]).has(this.posToPiece(pos).toLowerCase())) return;
@@ -122,7 +167,7 @@ class Chess {
 
 
         // rook/queen check
-        [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(isValidRelative).forEach(element => {
+        this.ranksAndFiles.filter(isValidRelative).forEach(element => {
             let pos = findPiece(element);
             if (!pos) return;
             if (this.posToPiece(pos).toLowerCase() !== "r" &&
@@ -131,13 +176,12 @@ class Chess {
         });
 
         // knight check
-        [[2, 1], [1, 2], [2, -1], [1, -2], [-2, 1], [-1, 2], [-2, -1], [-1, -2]]
-            .filter(isValidRelative).forEach(element => {
-                let pos = addVec(kingPos, element);
-                if (!oppositePieceSet.has(this.posToPiece(pos))) return;
-                if (this.posToPiece(pos).toLowerCase() !== "n") return;
-                checkingPieces.push(pos);
-            });
+        this.knightMoves.filter(isValidRelative).forEach(element => {
+            let pos = addVec(kingPos, element);
+            if (!oppositePieceSet.has(this.posToPiece(pos))) return;
+            if (this.posToPiece(pos).toLowerCase() !== "n") return;
+            checkingPieces.push(pos);
+        });
 
         return checkingPieces;
     }
