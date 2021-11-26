@@ -1,4 +1,6 @@
 var chess;
+var moveAudio = new Audio('./public_sound_standard_Move.mp3');
+var captureAudio = new Audio('./public_sound_standard_Capture.mp3');
 
 $(function generateBoard() {
     $(".board").css("grid-template-columns", "100px ".repeat(8));
@@ -34,11 +36,10 @@ function pieceMovement() {
         },
         drop: function (event, ui) {
             if ($(this).children().length === 0) {
-                var audio = new Audio('./public_sound_standard_Move.mp3');
+                moveAudio.play();
             } else {
-                var audio = new Audio('./public_sound_standard_Capture.mp3');
+                captureAudio.play();
             }
-            audio.play();
 
             chess.move(ui.draggable.parent().index(), $(this).index());
             // alert(chess.fen());
