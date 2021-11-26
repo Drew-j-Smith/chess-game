@@ -3,15 +3,17 @@ var moveAudio = new Audio('./public_sound_standard_Move.mp3');
 var captureAudio = new Audio('./public_sound_standard_Capture.mp3');
 
 $(function generateBoard() {
-    $(".board").css("grid-template-columns", "100px ".repeat(8));
-    $(".board").css("grid-template-rows", "100px ".repeat(8));
-
     for (let i = 0; i < 8; i++) {
+        $(".board").append(`<div class="row"></div>`)
         for (let j = 0; j < 8; j++) {
-            $(".board").append(`<div class="${i % 2 !== j % 2 ? "dark" : "light"}-square"></div>`);
+            $(".board .row").last().append(`<div class="square"></div>`);
         }
     }
-    $(".board").children("*").addClass("square");
+    $(".board div:nth-child(2n) div:nth-child(2n+1)").addClass("dark-square");
+    $(".board div:nth-child(2n + 1) div:nth-child(2n)").addClass("dark-square");
+
+    $(".board div:nth-child(2n) div:nth-child(2n)").addClass("light-square");
+    $(".board div:nth-child(2n + 1) div:nth-child(2n + 1)").addClass("light-square");
 });
 
 function pieceMovement() {
@@ -23,16 +25,17 @@ function pieceMovement() {
         helper: "clone",
         cursorAt: { top: 50, left: 50 },
         appendTo: ".board",
-        start: function() {
+        start: function () {
             $(this).parent().addClass("dragging");
         },
-        stop: function() {
+        stop: function () {
             $(".dragging").removeClass("dragging");
         }
     });
     $(".square").droppable({
         accept: function (dropElem) {
-            return chess.valid(dropElem.parent().index(), $(this).index());
+            return chess.valid([dropElem.parent().index(), dropElem.parent().parent().index()],
+                [$(this).index(), $(this).parent().index()]);
         },
         drop: function (event, ui) {
             if ($(this).children().length === 0) {
@@ -41,8 +44,9 @@ function pieceMovement() {
                 captureAudio.play();
             }
 
-            chess.move(ui.draggable.parent().index(), $(this).index());
-            // alert(chess.fen());
+            chess.move([ui.draggable.parent().index(), ui.draggable.parent().parent().index()],
+                [$(this).index(), $(this).parent().index()]);
+            console.log(chess.fen());
             console.log(`"${chess.findCheckingPieces("w")}"\n"${chess.findCheckingPieces("b")}"`)
             $(this).children().remove();
             $(this).append(ui.draggable);
@@ -57,22 +61,24 @@ $(function generatePieces() {
 async function loadFen(fen) {
     $(".piece").remove();
     chess = new Chess(fen);
-    var pos = 0;
+    let file = 1;
+    let rank = 1;
     let data = await $.getJSON("./pictures.json");
-    for (var i = 0; i < fen.length; i++) {
-        if (pos >= 64)
-            break;
+    for (let i = 0; i < fen.length; i++) {
+        if (isNaN(file)) break;
         if (fen[i] in data) {
-            pos++;
-            $(`.board div:nth-child(${pos})`).append(`<img src="${data[fen[i]]}">`);
+            $(`.board div:nth-child(${rank}) div:nth-child(${file})`).append(`<img src="${data[fen[i]]}">`);
+            file++;
             continue;
         }
         if (fen[i] === "/") {
+            file = 1;
+            rank++;
             continue;
         }
-        pos += parseInt(fen[i], 10);
+        file += parseInt(fen[i], 10);
     }
-    $(".board").children().children().addClass("piece");
+    $(".board").children().children().children().addClass("piece");
     pieceMovement();
 }
 

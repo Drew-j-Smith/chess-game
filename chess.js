@@ -34,16 +34,19 @@ class Chess {
         this.moveCount = parseInt(fenArr[5], 10);
     }
 
+
+    posToPiece = (pos) => this.board[pos[0] + pos[1] * 8];
+
     valid(start, dst) {
-        if (start === dst) return false;
+        if (start[0] === dst[0] && start[1] === dst[1]) return false;
         if (this.turn === "w") {
-            if (this.blackPieceSet.has(this.board[start])) return false;
-            if (this.whitePieceSet.has(this.board[dst])) return false;
+            if (this.blackPieceSet.has(this.posToPiece(start))) return false;
+            if (this.whitePieceSet.has(this.posToPiece(dst))) return false;
         } else {
-            if (this.whitePieceSet.has(this.board[start])) return false;
-            if (this.blackPieceSet.has(this.board[dst])) return false;
+            if (this.whitePieceSet.has(this.posToPiece(start))) return false;
+            if (this.blackPieceSet.has(this.posToPiece(dst))) return false;
         }
-        switch (this.board[start]) {
+        switch (this.posToPiece(start)) {
             case "":
                 return false;
             //TODO
@@ -54,14 +57,14 @@ class Chess {
     move(start, dst) {
         // TODO implement castling and en passent
 
-        if (this.board[dst] !== "" || this.board[start].toLowerCase() === "p") {
+        if (this.posToPiece(dst) !== "" || this.posToPiece(start).toLowerCase() === "p") {
             this.fiftyMove = 0;
         } else {
             this.fiftyMove++;
         }
 
-        this.board[dst] = this.board[start];
-        this.board[start] = "";
+        this.board[dst[0] + dst[1] * 8] = this.posToPiece(start);
+        this.board[start[0] + start[1] * 8] = "";
 
         if (this.turn === "w") {
             this.turn = "b";
@@ -92,14 +95,13 @@ class Chess {
             pos[1] < 8;
         let isValidRelative = (pos) => isValid(addVec(pos, kingPos));
         let addVec = (first, second) => [first[0] + second[0], first[1] + second[1]];
-        let posToPiece = (pos) => this.board[pos[0] + pos[1] * 8];
         let findPiece = (element) => {
             let pos = addVec(kingPos, element);
-            while (isValid(pos) && posToPiece(pos) === "") {
+            while (isValid(pos) && this.posToPiece(pos) === "") {
                 pos = addVec(pos, element);
             }
             if (!isValid(pos)) return;
-            if (!oppositePieceSet.has(posToPiece(pos))) return;
+            if (!oppositePieceSet.has(this.posToPiece(pos))) return;
             return pos;
         }
 
@@ -108,8 +110,8 @@ class Chess {
         [[1, 1], [1, -1], [-1, 1], [-1, -1]].filter(isValidRelative).forEach(element => {
             let pos = findPiece(element);
             if (!pos) return;
-            if (!new Set(["b", "q", "p"]).has(posToPiece(pos).toLowerCase())) return;
-            if (posToPiece(pos).toLowerCase() === "p") {
+            if (!new Set(["b", "q", "p"]).has(this.posToPiece(pos).toLowerCase())) return;
+            if (this.posToPiece(pos).toLowerCase() === "p") {
                 if (color === "w" && element[1] > 0) return;
                 if (color === "b" && element[1] < 0) return;
                 if (pos[0] !== addVec(kingPos, element)[0]) return;
@@ -123,8 +125,8 @@ class Chess {
         [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(isValidRelative).forEach(element => {
             let pos = findPiece(element);
             if (!pos) return;
-            if (posToPiece(pos).toLowerCase() !== "r" &&
-                posToPiece(pos).toLowerCase() !== "q") return;
+            if (this.posToPiece(pos).toLowerCase() !== "r" &&
+                this.posToPiece(pos).toLowerCase() !== "q") return;
             checkingPieces.push(pos);
         });
 
@@ -132,8 +134,8 @@ class Chess {
         [[2, 1], [1, 2], [2, -1], [1, -2], [-2, 1], [-1, 2], [-2, -1], [-1, -2]]
             .filter(isValidRelative).forEach(element => {
                 let pos = addVec(kingPos, element);
-                if (!oppositePieceSet.has(posToPiece(pos))) return;
-                if (posToPiece(pos).toLowerCase() !== "n") return;
+                if (!oppositePieceSet.has(this.posToPiece(pos))) return;
+                if (this.posToPiece(pos).toLowerCase() !== "n") return;
                 checkingPieces.push(pos);
             });
 

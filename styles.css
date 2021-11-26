@@ -1,6 +1,7 @@
 .board {
     display: inline-grid;
     border: 1px solid black;
+    grid-template-rows: 100px 100px 100px 100px 100px 100px 100px 100px;
 }
 
 .square {
@@ -25,5 +26,10 @@
 .piece {
     user-select: none;
     width: 100px;
+}
+
+.row {
+    display: inline-grid;
+    grid-template-columns: 100px 100px 100px 100px 100px 100px 100px 100px;
 }
 
