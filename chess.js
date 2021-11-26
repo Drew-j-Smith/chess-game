@@ -111,14 +111,18 @@ class Chess {
         // bishop/queen/pawn check
         [[1, 1], [1, -1], [-1, 1], [-1, -1]].filter(isValidRelative).forEach(element => {
             let pos = addVec(kingPos, element);
-            // TODO check pawns
             while (isValid(pos) && posToPiece(pos) == "") {
                 pos = addVec(pos, element);
             }
             if (!isValid(pos)) return;
             if (!oppositePieceSet.has(posToPiece(pos))) return;
-            if (posToPiece(pos).toLowerCase() != "b" &&
-                posToPiece(pos).toLowerCase() != "q") return;
+            if (!new Set(["b", "q", "p"]).has(posToPiece(pos).toLowerCase())) return;
+            if (posToPiece(pos).toLowerCase() == "p") {
+                if (color == "w" && element[1] > 0) return;
+                if (color == "b" && element[1] < 0) return;
+                if (pos[0] != addVec(kingPos, element)[0]) return;
+                if (pos[1] != addVec(kingPos, element)[1]) return;
+            }
             checkingPieces.push(pos);
         });
 
