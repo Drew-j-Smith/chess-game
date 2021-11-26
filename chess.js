@@ -99,16 +99,17 @@ class Chess {
         // alert(color + " " + kingPos + " " + [...oppositePieceSet])
 
         let isValid = (pos) =>
-            0 <= kingPos[0] + pos[0] &&
-            kingPos[0] + pos[0] < 8 &&
-            0 <= kingPos[1] + pos[1] &&
-            kingPos[1] + pos[1] < 8;
+            0 <= pos[0] &&
+            pos[0] < 8 &&
+            0 <= pos[1] &&
+            pos[1] < 8;
+        let isValidRelative = (pos) => isValid(addVec(pos, kingPos));
         let addVec = (first, second) => [first[0] + second[0], first[1] + second[1]];
         let posToPiece = (pos) => this.board[pos[0] + pos[1] * 8];
 
 
         // bishop/queen/pawn check
-        [[1, 1], [1, -1], [-1, 1], [-1, -1]].filter(isValid).forEach(element => {
+        [[1, 1], [1, -1], [-1, 1], [-1, -1]].filter(isValidRelative).forEach(element => {
             let pos = addVec(kingPos, element);
             // TODO check pawns
             while (isValid(pos) && posToPiece(pos) == "") {
@@ -123,7 +124,7 @@ class Chess {
 
 
         // rook/queen check
-        [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(isValid).forEach(element => {
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(isValidRelative).forEach(element => {
             let pos = addVec(kingPos, element);
             while (isValid(pos) && posToPiece(pos) == "") {
                 pos = addVec(pos, element);
@@ -137,7 +138,7 @@ class Chess {
 
         // knight check
         [[2, 1], [1, 2], [2, -1], [1, -2], [-2, 1], [-1, 2], [-2, -1], [-1, -2]]
-            .filter(isValid).forEach(element => {
+            .filter(isValidRelative).forEach(element => {
                 let pos = addVec(kingPos, element);
                 if (!oppositePieceSet.has(posToPiece(pos))) return;
                 if (posToPiece(pos).toLowerCase() != "n") return;
