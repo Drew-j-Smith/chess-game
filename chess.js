@@ -39,6 +39,15 @@ class Chess {
     valid(start, dst) {
         let diff = [dst[0] - start[0], dst[1] - start[1]];
         let relativeEqual = (el1, el2) => (el1 > 0) === (el2 > 0) && (el1 < 0) === (el2 < 0);
+        let posEquals = (first, second) => first[0] === second[0] && first[1] === second[1];
+        let checkForIntermediatePieces = (direction) => {
+            let pos = start;
+            while (!posEquals(pos, dst)) {
+                pos = [pos[0] + direction[0], pos[1] + direction[1]];
+                if (!posEquals(pos, dst) && this.posToPiece(pos) !== "") return true;
+            }
+            return false;
+        }
         if (start[0] === dst[0] && start[1] === dst[1]) return false;
         if (this.turn === "w") {
             if (this.blackPieceSet.has(this.posToPiece(start))) return false;
@@ -56,6 +65,7 @@ class Chess {
                     relativeEqual(element[0], diff[0]) &&
                     relativeEqual(element[1], diff[1]));
                 if (!direction) return false;
+                if (checkForIntermediatePieces(direction)) return false;
                 break;
             }
             case "n":
@@ -73,6 +83,7 @@ class Chess {
                     relativeEqual(element[0], diff[0]) &&
                     relativeEqual(element[1], diff[1]));
                 if (!direction) return false;
+                if (checkForIntermediatePieces(direction)) return false;
                 break;
             }
             case "q":
@@ -81,6 +92,9 @@ class Chess {
                     relativeEqual(element[0], diff[0]) &&
                     relativeEqual(element[1], diff[1]));
                 if (!direction) return false;
+                if (Math.abs(direction[0]) === 1 && Math.abs(direction[1]) === 1 &&
+                    Math.abs(diff[0]) !== Math.abs(diff[1])) return false;
+                if (checkForIntermediatePieces(direction)) return false;
                 break;
             }
             case "k":
