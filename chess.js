@@ -96,14 +96,24 @@ class Chess {
                     element[0] === diff[0] &&
                     element[1] === diff[1]);
                 if (!direction) return false;
+                if (diff[0] !== 0 && this.posToPiece(dst) === "") return false;
+                if (diff[0] === 0 && this.posToPiece(dst) !== "") return false;
+                if (diff[1] === 2 && this.posToPiece([start[0], 2]) !== "") return false;
+                if (diff[1] === 2 && start[1] !== 1) return false;
                 break;
+                // TODO en pessant
             }
             case "P": {
                 let direction = [[-1, -1], [0, -1], [1, -1], [0, -2]].find(element =>
                     element[0] === diff[0] &&
                     element[1] === diff[1]);
                 if (!direction) return false;
+                if (diff[0] !== 0 && this.posToPiece(dst) === "") return false;
+                if (diff[0] === 0 && this.posToPiece(dst) !== "") return false;
+                if (diff[1] === -2 && this.posToPiece([start[0], 5]) !== "") return false;
+                if (diff[1] === -2 && start[1] !== 6) return false;
                 break;
+                // TODO en pessant
             }
         }
         // TODO make sure not in check
