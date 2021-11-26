@@ -6,7 +6,7 @@ $(function generateBoard() {
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            $(".board").append(`<div class="${i % 2 != j % 2 ? "dark" : "light"}-square"></div>`);
+            $(".board").append(`<div class="${i % 2 !== j % 2 ? "dark" : "light"}-square"></div>`);
         }
     }
     $(".board").children("*").addClass("square");
@@ -33,7 +33,7 @@ function pieceMovement() {
             return chess.valid(dropElem.parent().index(), $(this).index());
         },
         drop: function (event, ui) {
-            if ($(this).children().length == 0) {
+            if ($(this).children().length === 0) {
                 var audio = new Audio('./public_sound_standard_Move.mp3');
             } else {
                 var audio = new Audio('./public_sound_standard_Capture.mp3');
@@ -66,7 +66,7 @@ async function loadFen(fen) {
             $(`.board div:nth-child(${pos})`).append(`<img src="${data[fen[i]]}">`);
             continue;
         }
-        if (fen[i] == "/") {
+        if (fen[i] === "/") {
             continue;
         }
         pos += parseInt(fen[i], 10);

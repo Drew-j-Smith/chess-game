@@ -16,7 +16,7 @@ class Chess {
                 this.board.push(boardStr[i]);
                 continue;
             }
-            if (boardStr[i] == "/") {
+            if (boardStr[i] === "/") {
                 continue;
             }
             let number = parseInt(boardStr[i], 10);
@@ -35,8 +35,8 @@ class Chess {
     }
 
     valid(start, dst) {
-        if (start == dst) return false;
-        if (this.turn == "w") {
+        if (start === dst) return false;
+        if (this.turn === "w") {
             if (this.blackPieceSet.has(this.board[start])) return false;
             if (this.whitePieceSet.has(this.board[dst])) return false;
         } else {
@@ -54,7 +54,7 @@ class Chess {
     move(start, dst) {
         // TODO implement castling and en passent
 
-        if (this.board[dst] != "" || this.board[start].toLowerCase() == "p") {
+        if (this.board[dst] !== "" || this.board[start].toLowerCase() === "p") {
             this.fiftyMove = 0;
         } else {
             this.fiftyMove++;
@@ -63,7 +63,7 @@ class Chess {
         this.board[dst] = this.board[start];
         this.board[start] = "";
 
-        if (this.turn == "w") {
+        if (this.turn === "w") {
             this.turn = "b";
         } else {
             this.turn = "w";
@@ -80,10 +80,10 @@ class Chess {
         let checkingPieces = [];
 
         let kingIndex = this.board.findIndex(element =>
-            color == "w" && element == "K" ||
-            color == "b" && element == "k");
+            color === "w" && element === "K" ||
+            color === "b" && element === "k");
         let kingPos = [kingIndex % 8, (kingIndex - kingIndex % 8) / 8];
-        let oppositePieceSet = color == "w" ? this.blackPieceSet : this.whitePieceSet;
+        let oppositePieceSet = color === "w" ? this.blackPieceSet : this.whitePieceSet;
 
         let isValid = (pos) =>
             0 <= pos[0] &&
@@ -95,7 +95,7 @@ class Chess {
         let posToPiece = (pos) => this.board[pos[0] + pos[1] * 8];
         let findPiece = (element) => {
             let pos = addVec(kingPos, element);
-            while (isValid(pos) && posToPiece(pos) == "") {
+            while (isValid(pos) && posToPiece(pos) === "") {
                 pos = addVec(pos, element);
             }
             if (!isValid(pos)) return;
@@ -109,11 +109,11 @@ class Chess {
             let pos = findPiece(element);
             if (!pos) return;
             if (!new Set(["b", "q", "p"]).has(posToPiece(pos).toLowerCase())) return;
-            if (posToPiece(pos).toLowerCase() == "p") {
-                if (color == "w" && element[1] > 0) return;
-                if (color == "b" && element[1] < 0) return;
-                if (pos[0] != addVec(kingPos, element)[0]) return;
-                if (pos[1] != addVec(kingPos, element)[1]) return;
+            if (posToPiece(pos).toLowerCase() === "p") {
+                if (color === "w" && element[1] > 0) return;
+                if (color === "b" && element[1] < 0) return;
+                if (pos[0] !== addVec(kingPos, element)[0]) return;
+                if (pos[1] !== addVec(kingPos, element)[1]) return;
             }
             checkingPieces.push(pos);
         });
@@ -123,8 +123,8 @@ class Chess {
         [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(isValidRelative).forEach(element => {
             let pos = findPiece(element);
             if (!pos) return;
-            if (posToPiece(pos).toLowerCase() != "r" &&
-                posToPiece(pos).toLowerCase() != "q") return;
+            if (posToPiece(pos).toLowerCase() !== "r" &&
+                posToPiece(pos).toLowerCase() !== "q") return;
             checkingPieces.push(pos);
         });
 
@@ -133,7 +133,7 @@ class Chess {
             .filter(isValidRelative).forEach(element => {
                 let pos = addVec(kingPos, element);
                 if (!oppositePieceSet.has(posToPiece(pos))) return;
-                if (posToPiece(pos).toLowerCase() != "n") return;
+                if (posToPiece(pos).toLowerCase() !== "n") return;
                 checkingPieces.push(pos);
             });
 
@@ -145,7 +145,7 @@ class Chess {
         let count = 0;
         for (let i = 0; i < 64; i++) {
 
-            if (i != 0 && i % 8 == 0) {
+            if (i !== 0 && i % 8 === 0) {
                 if (count > 0) {
                     res += count;
                     count = 0;
