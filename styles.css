@@ -1,7 +1,7 @@
 .board {
     display: inline-grid;
     border: 1px solid black;
-    grid-template-rows: 100px 100px 100px 100px 100px 100px 100px 100px;
+    grid-template-rows: repeat(8, 100px);
 }
 
 .square {
@@ -30,6 +30,6 @@
 
 .row {
     display: inline-grid;
-    grid-template-columns: 100px 100px 100px 100px 100px 100px 100px 100px;
+    grid-template-columns: repeat(8, 100px);
 }
 
