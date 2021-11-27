@@ -11,23 +11,23 @@ class Chess {
         let fenArr = fen.split(' ');
 
         this.board = [];
-        let row = []
+        let rank = []
         let boardStr = fenArr[0];
         for (let i = 0; i < boardStr.length; i++) {
             if (this.pieceSet.has(boardStr[i])) {
-                row.push(boardStr[i]);
+                rank.push(boardStr[i]);
                 continue;
             }
             if (boardStr[i] === "/") {
-                this.board.push(row);
-                row = [];
+                this.board.push(rank);
+                rank = [];
             }
             let number = parseInt(boardStr[i], 10);
             for (let j = 0; j < number; j++) {
-                row.push("");
+                rank.push("");
             }
         }
-        this.board.push(row);
+        this.board.push(rank);
 
         this.turn = fenArr[1];
         this.castlingRights = fenArr[2];
@@ -165,13 +165,13 @@ class Chess {
     findCheckingPieces(color) {
         let checkingPieces = [];
 
-        let row = this.board.findIndex(element =>
+        let rank = this.board.findIndex(element =>
             color === "w" && element.includes("K") ||
             color === "b" && element.includes("k"));
-        let col = this.board[row].findIndex(el => 
+        let file = this.board[rank].findIndex(el => 
             color === "w" && el === "K" ||
             color === "b" && el === "k");
-        let kingPos = [col, row];
+        let kingPos = [file, rank];
         let oppositePieceSet = color === "w" ? this.blackPieceSet : this.whitePieceSet;
 
         let isValid = (pos) =>
