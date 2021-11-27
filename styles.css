@@ -1,7 +1,13 @@
+:root {
+    --square-size: 100px;
+}
+
 .board {
     display: inline-grid;
     border: 1px solid black;
-    grid-template-rows: repeat(8, 100px);
+    grid-template-rows: repeat(8, var(--square-size));
+    resize: horizontal;
+    overflow: hidden;
 }
 
 .square {
@@ -25,11 +31,11 @@
 
 .piece {
     user-select: none;
-    width: 100px;
+    width: var(--square-size);
 }
 
 .row {
     display: inline-grid;
-    grid-template-columns: repeat(8, 100px);
+    grid-template-columns: repeat(8, var(--square-size));
 }
 

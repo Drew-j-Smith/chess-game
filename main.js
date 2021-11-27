@@ -14,6 +14,11 @@ $(function generateBoard() {
 
     $(".board div:nth-child(2n) div:nth-child(2n)").addClass("light-square");
     $(".board div:nth-child(2n + 1) div:nth-child(2n + 1)").addClass("light-square");
+
+    $(":root").mousemove(() => {
+        $(":root").css("--square-size", $(".board").width() / 8 + "px");
+        $(".board").height($(".board").width());
+    });
 });
 
 function pieceMovement() {
