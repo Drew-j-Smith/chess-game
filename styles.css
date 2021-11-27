@@ -2,7 +2,7 @@
     --square-size: 100px;
 }
 
-.board {
+chess-board {
     display: inline-grid;
     border: 1px solid black;
     grid-template-rows: repeat(8, var(--square-size));
@@ -10,7 +10,7 @@
     overflow: hidden;
 }
 
-.square {
+chess-square {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -34,7 +34,7 @@
     width: var(--square-size);
 }
 
-.row {
+chess-row {
     display: inline-grid;
     grid-template-columns: repeat(8, var(--square-size));
 }

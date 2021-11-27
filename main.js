@@ -2,22 +2,44 @@ var chess;
 var moveAudio = new Audio('./public_sound_standard_Move.mp3');
 var captureAudio = new Audio('./public_sound_standard_Capture.mp3');
 
+class chess_board extends HTMLElement {
+    constructor() {
+        super();
+    }
+}
+
+class chess_row extends HTMLElement {
+    constructor() {
+        super();
+    }
+}
+
+class chess_square extends HTMLElement {
+    constructor() {
+        super();
+    }
+}
+
+customElements.define("chess-board", chess_board);
+customElements.define("chess-row", chess_row);
+customElements.define("chess-square", chess_square);
+
 $(function generateBoard() {
     for (let i = 0; i < 8; i++) {
-        $(".board").append(`<div class="row"></div>`)
+        $("chess-board").append(`<chess-row></chess-row>`)
         for (let j = 0; j < 8; j++) {
-            $(".board .row").last().append(`<div class="square"></div>`);
+            $("chess-board chess-row").last().append(`<chess-square></chess-square>`);
         }
     }
-    $(".board div:nth-child(2n) div:nth-child(2n+1)").addClass("dark-square");
-    $(".board div:nth-child(2n + 1) div:nth-child(2n)").addClass("dark-square");
+    $("chess-board chess-row:nth-child(2n) chess-square:nth-child(2n+1)").addClass("dark-square");
+    $("chess-board chess-row:nth-child(2n + 1) chess-square:nth-child(2n)").addClass("dark-square");
 
-    $(".board div:nth-child(2n) div:nth-child(2n)").addClass("light-square");
-    $(".board div:nth-child(2n + 1) div:nth-child(2n + 1)").addClass("light-square");
+    $("chess-board chess-row:nth-child(2n) chess-square:nth-child(2n)").addClass("light-square");
+    $("chess-board chess-row:nth-child(2n + 1) chess-square:nth-child(2n + 1)").addClass("light-square");
 
     $(":root").mousemove(() => {
-        $(":root").css("--square-size", $(".board").width() / 8 + "px");
-        $(".board").height($(".board").width());
+        $(":root").css("--square-size", $("chess-board").width() / 8 + "px");
+        $("chess-board").height($("chess-board").width());
     });
 });
 
@@ -29,7 +51,7 @@ function pieceMovement() {
         zIndex: 100,
         helper: "clone",
         cursorAt: { top: 50, left: 50 },
-        appendTo: ".board",
+        appendTo: "chess-board",
         start: function () {
             $(this).parent().addClass("dragging");
         },
@@ -37,7 +59,7 @@ function pieceMovement() {
             $(".dragging").removeClass("dragging");
         }
     });
-    $(".square").droppable({
+    $("chess-square").droppable({
         accept: function (dropElem) {
             return chess.valid([dropElem.parent().index(), dropElem.parent().parent().index()],
                 [$(this).index(), $(this).parent().index()]);
@@ -72,7 +94,7 @@ async function loadFen(fen) {
     for (let i = 0; i < fen.length; i++) {
         if (isNaN(file)) break;
         if (fen[i] in data) {
-            $(`.board div:nth-child(${rank}) div:nth-child(${file})`).append(`<img src="${data[fen[i]]}">`);
+            $(`chess-board chess-row:nth-child(${rank}) chess-square:nth-child(${file})`).append(`<img src="${data[fen[i]]}">`);
             file++;
             continue;
         }
@@ -83,7 +105,7 @@ async function loadFen(fen) {
         }
         file += parseInt(fen[i], 10);
     }
-    $(".board").children().children().children().addClass("piece");
+    $("chess-board").children().children().children().addClass("piece");
     pieceMovement();
 }
 
