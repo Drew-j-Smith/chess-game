@@ -29,9 +29,11 @@ chess-square {
     background-color: cadetblue;
 }
 
-.piece {
+chess-piece {
     user-select: none;
     width: var(--square-size);
+    height: var(--square-size);
+    background-size: contain;
 }
 
 chess-row {

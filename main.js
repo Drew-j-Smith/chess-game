@@ -20,9 +20,16 @@ class chess_square extends HTMLElement {
     }
 }
 
+class chess_piece extends HTMLElement {
+    constructor() {
+        super();
+    }
+}
+
 customElements.define("chess-board", chess_board);
 customElements.define("chess-row", chess_row);
 customElements.define("chess-square", chess_square);
+customElements.define("chess-piece", chess_piece);
 
 $(function generateBoard() {
     for (let i = 0; i < 8; i++) {
@@ -44,7 +51,7 @@ $(function generateBoard() {
 });
 
 function pieceMovement() {
-    $(".piece").draggable({
+    $("chess-piece").draggable({
         scroll: false,
         revert: true,
         revertDuration: 0,
@@ -85,16 +92,16 @@ $(function generatePieces() {
     loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 })
 
-async function loadFen(fen) {
-    $(".piece").remove();
+function loadFen(fen) {
+    $("chess-piece").remove();
     chess = new Chess(fen);
     let file = 1;
     let rank = 1;
-    let data = await $.getJSON("./pictures.json");
     for (let i = 0; i < fen.length; i++) {
-        if (isNaN(file)) break;
-        if (fen[i] in data) {
-            $(`chess-board chess-row:nth-child(${rank}) chess-square:nth-child(${file})`).append(`<img src="${data[fen[i]]}">`);
+        if (fen[i] === " ") break;
+        if (chess.pieceSet.has(fen[i])) {
+            $(`chess-board chess-row:nth-child(${rank}) chess-square:nth-child(${file})`)
+                .append(`<chess-piece class="${fen[i]}"></chess-piece>`);
             file++;
             continue;
         }
@@ -105,7 +112,6 @@ async function loadFen(fen) {
         }
         file += parseInt(fen[i], 10);
     }
-    $("chess-board").children().children().children().addClass("piece");
     pieceMovement();
 }
 
