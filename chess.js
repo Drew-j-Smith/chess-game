@@ -11,20 +11,23 @@ class Chess {
         let fenArr = fen.split(' ');
 
         this.board = [];
+        let row = []
         let boardStr = fenArr[0];
         for (let i = 0; i < boardStr.length; i++) {
             if (this.pieceSet.has(boardStr[i])) {
-                this.board.push(boardStr[i]);
+                row.push(boardStr[i]);
                 continue;
             }
             if (boardStr[i] === "/") {
-                continue;
+                this.board.push(row);
+                row = [];
             }
             let number = parseInt(boardStr[i], 10);
             for (let j = 0; j < number; j++) {
-                this.board.push("");
+                row.push("");
             }
         }
+        this.board.push(row);
 
         this.turn = fenArr[1];
         this.castlingRights = fenArr[2];
@@ -34,7 +37,7 @@ class Chess {
     }
 
 
-    posToPiece = (pos) => this.board[pos[0] + pos[1] * 8];
+    posToPiece = (pos) => this.board[pos[1]][pos[0]];
 
     valid(start, dst) {
         let diff = [dst[0] - start[0], dst[1] - start[1]];
@@ -143,8 +146,8 @@ class Chess {
             this.fiftyMove++;
         }
 
-        this.board[dst[0] + dst[1] * 8] = this.posToPiece(start);
-        this.board[start[0] + start[1] * 8] = "";
+        this.board[dst[1]][dst[0]] = this.posToPiece(start);
+        this.board[start[1]][start[0]] = "";
 
         if (this.turn === "w") {
             this.turn = "b";
@@ -162,10 +165,13 @@ class Chess {
     findCheckingPieces(color) {
         let checkingPieces = [];
 
-        let kingIndex = this.board.findIndex(element =>
-            color === "w" && element === "K" ||
-            color === "b" && element === "k");
-        let kingPos = [kingIndex % 8, (kingIndex - kingIndex % 8) / 8];
+        let row = this.board.findIndex(element =>
+            color === "w" && element.includes("K") ||
+            color === "b" && element.includes("k"));
+        let col = this.board[row].findIndex(el => 
+            color === "w" && el === "K" ||
+            color === "b" && el === "k");
+        let kingPos = [col, row];
         let oppositePieceSet = color === "w" ? this.blackPieceSet : this.whitePieceSet;
 
         let isValid = (pos) =>
@@ -224,28 +230,26 @@ class Chess {
     fen() {
         let res = "";
         let count = 0;
-        for (let i = 0; i < 64; i++) {
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                if (!this.pieceSet.has(this.board[i][j])) {
+                    count++;
+                    continue;
+                }
+                if (count > 0) {
+                    res += count;
+                    count = 0;
+                }
+                res += this.board[i][j];
+            }
 
-            if (i !== 0 && i % 8 === 0) {
-                if (count > 0) {
-                    res += count;
-                    count = 0;
-                }
-                res += "/";
+            if (count > 0) {
+                res += count;
+                count = 0;
             }
-            if (this.pieceSet.has(this.board[i])) {
-                if (count > 0) {
-                    res += count;
-                    count = 0;
-                }
-                res += this.board[i];
-                continue;
-            }
-            count++;
+            res += "/";
         }
-        if (count > 0) {
-            res += count;
-        }
+        
         return `${res} ${this.turn} ${this.castlingRights} ${this.enPassent} ${this.fiftyMove} ${this.moveCount}`
     }
 }
