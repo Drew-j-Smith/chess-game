@@ -44,9 +44,12 @@ $(function generateBoard() {
     $("chess-board chess-row:nth-child(2n) chess-square:nth-child(2n)").addClass("light-square");
     $("chess-board chess-row:nth-child(2n + 1) chess-square:nth-child(2n + 1)").addClass("light-square");
 
-    $(":root").mousemove(() => {
-        $(":root").css("--square-size", $("chess-board").width() / 8 + "px");
-        $("chess-board").height($("chess-board").width());
+    $(":root").mousemove(() => { // kinda a workaround but idk how to do it better
+        if ($("chess-board").height() !== $("chess-board").width()) {
+            $(":root").css("--square-size", $("chess-board").width() / 8 + "px");
+            $("chess-board").height($("chess-board").width());
+            $("chess-piece").draggable("option", "cursorAt", { top: $("chess-board").width() / 16, left: $("chess-board").width() / 16 } );
+        }
     });
 });
 
