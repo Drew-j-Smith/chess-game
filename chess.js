@@ -37,6 +37,20 @@ class Chess {
         { file: 1, rank: -1 },
         { file: 0, rank: -2 }
     ];
+    pieces = {
+        r: { moveSet: this.ranksAndFiles, absoluteEquals: false },
+        R: { moveSet: this.ranksAndFiles, absoluteEquals: false },
+        n: { moveSet: this.knightMoves, absoluteEquals: true },
+        N: { moveSet: this.knightMoves, absoluteEquals: true },
+        b: { moveSet: this.diagonals, absoluteEquals: false },
+        B: { moveSet: this.diagonals, absoluteEquals: false },
+        q: { moveSet: this.ranksAndFiles.concat(this.diagonals), absoluteEquals: false },
+        Q: { moveSet: this.ranksAndFiles.concat(this.diagonals), absoluteEquals: false },
+        k: { moveSet: this.ranksAndFiles.concat(this.diagonals), absoluteEquals: true },
+        K: { moveSet: this.ranksAndFiles.concat(this.diagonals), absoluteEquals: true },
+        p: { moveSet: this.blackPawnMoves, absoluteEquals: true },
+        P: { moveSet: this.whitePawnMoves, absoluteEquals: true }
+    }
 
     constructor(fen) {
         let fenArr = fen.split(' ');
@@ -81,9 +95,9 @@ class Chess {
             (first.file > 0) === (second.file > 0) &&
             (first.file < 0) === (second.file < 0);
         let posEquals = (first, second) => first.rank === second.rank && first.file === second.file;
-        let findValidDirection = (moves, absoluteEquals) => {
-            let direction = moves.find(element =>
-                absoluteEquals ? posEquals(element, diff) : relativeEqual(element, diff));
+        let findValidDirection = (piece) => {
+            let direction = piece.moveSet.find(element =>
+                piece.absoluteEquals ? posEquals(element, diff) : relativeEqual(element, diff));
             if (!direction) return;
             if (Math.abs(direction.rank) === 1 && Math.abs(direction.file) === 1 &&
                 Math.abs(diff.rank) !== Math.abs(diff.file)) return;
@@ -108,42 +122,12 @@ class Chess {
             if (this.whitePieceSet.has(this.posToPiece(start))) return false;
             if (this.blackPieceSet.has(this.posToPiece(dst))) return false;
         }
+
+        let direction = findValidDirection(this.pieces[this.posToPiece(start)]);
+        if (!direction) return false;
+        
         switch (this.posToPiece(start)) {
-            case "":
-                return false;
-            case "r":
-            case "R": {
-                let direction = findValidDirection(this.ranksAndFiles, false);
-                if (!direction) return false;
-                break;
-            }
-            case "n":
-            case "N": {
-                let direction = findValidDirection(this.knightMoves, true);
-                if (!direction) return false;
-                break;
-            }
-            case "b":
-            case "B": {
-                let direction = findValidDirection(this.diagonals, false);
-                if (!direction) return false;
-                break;
-            }
-            case "q":
-            case "Q": {
-                let direction = findValidDirection(this.ranksAndFiles.concat(this.diagonals), false);
-                if (!direction) return false;
-                break;
-            }
-            case "k":
-            case "K": {
-                let direction = findValidDirection(this.ranksAndFiles.concat(this.diagonals), true);
-                if (!direction) return false;
-                break;
-            }
             case "p": {
-                let direction = findValidDirection(this.blackPawnMoves, true);
-                if (!direction) return false;
                 if (diff.file !== 0 && this.posToPiece(dst) === "") return false;
                 if (diff.file === 0 && this.posToPiece(dst) !== "") return false;
                 if (diff.rank === 2 && this.posToPiece({ file: start.file, rank: 2 }) !== "") return false;
@@ -152,8 +136,6 @@ class Chess {
                 // TODO en pessant
             }
             case "P": {
-                let direction = findValidDirection(this.whitePawnMoves, true);
-                if (!direction) return false;
                 if (diff.file !== 0 && this.posToPiece(dst) === "") return false;
                 if (diff.file === 0 && this.posToPiece(dst) !== "") return false;
                 if (diff.rank === -2 && this.posToPiece({ file: start.file, rank: 5 }) !== "") return false;
