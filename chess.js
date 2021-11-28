@@ -83,38 +83,26 @@ class Chess {
 
 
     posToPiece = (pos) => this.board[pos.rank][pos.file];
+    posEquals = (first, second) => first.rank === second.rank && first.file === second.file;
+    posRelativeEqual = (first, second) =>
+        (first.rank > 0) === (second.rank > 0) &&
+        (first.rank < 0) === (second.rank < 0) &&
+        (first.file > 0) === (second.file > 0) &&
+        (first.file < 0) === (second.file < 0);
+    posAdd = (first, second) => {
+        return {
+            file: first.file + second.file,
+            rank: first.rank + second.rank
+        };
+    };
 
     valid(start, dst) {
         let diff = {
             rank: dst.rank - start.rank,
             file: dst.file - start.file
         };
-        let relativeEqual = (first, second) =>
-            (first.rank > 0) === (second.rank > 0) &&
-            (first.rank < 0) === (second.rank < 0) &&
-            (first.file > 0) === (second.file > 0) &&
-            (first.file < 0) === (second.file < 0);
-        let posEquals = (first, second) => first.rank === second.rank && first.file === second.file;
-        let findValidDirection = (piece) => {
-            let direction = piece.moveSet.find(element =>
-                piece.absoluteEquals ? posEquals(element, diff) : relativeEqual(element, diff));
-            if (!direction) return;
-            if (Math.abs(direction.rank) === 1 && Math.abs(direction.file) === 1 &&
-                Math.abs(diff.rank) !== Math.abs(diff.file)) return;
-            let pos = {
-                file: start.file + direction.file,
-                rank: start.rank + direction.rank
-            }
-            while (!posEquals(pos, dst)) {
-                if (this.posToPiece(pos) !== "") return;
-                pos = {
-                    file: pos.file + direction.file,
-                    rank: pos.rank + direction.rank
-                }
-            }
-            return direction;
-        }
-        if (start.rank === dst.rank && start.file === dst.file) return false;
+
+        if (this.posEquals(start, dst)) return false;
         if (this.turn === "w") {
             if (this.blackPieceSet.has(this.posToPiece(start))) return false;
             if (this.whitePieceSet.has(this.posToPiece(dst))) return false;
@@ -123,8 +111,17 @@ class Chess {
             if (this.blackPieceSet.has(this.posToPiece(dst))) return false;
         }
 
-        let direction = findValidDirection(this.pieces[this.posToPiece(start)]);
+        let piece = this.pieces[this.posToPiece(start)];
+        let direction = piece.moveSet.find(element =>
+            piece.absoluteEquals ? this.posEquals(element, diff) : this.posRelativeEqual(element, diff));
         if (!direction) return false;
+        if (Math.abs(direction.rank) === 1 && Math.abs(direction.file) === 1 &&
+            Math.abs(diff.rank) !== Math.abs(diff.file)) return false;
+        let pos = this.posAdd(start, direction);
+        while (!this.posEquals(pos, dst)) {
+            if (this.posToPiece(pos) !== "") return false;
+            pos = this.posAdd(pos, direction);
+        }
         
         switch (this.posToPiece(start)) {
             case "p": {
@@ -193,17 +190,12 @@ class Chess {
             pos.file < 8 &&
             0 <= pos.rank &&
             pos.rank < 8;
-        let isValidRelative = (pos) => isValid(addVec(pos, kingPos));
-        let addVec = (first, second) => {
-            return {
-                file: first.file + second.file,
-                rank: first.rank + second.rank
-            };
-        };
+        let isValidRelative = (pos) => isValid(this.posAdd(pos, kingPos));
+        
         let findPiece = (element) => {
-            let pos = addVec(kingPos, element);
+            let pos = this.posAdd(kingPos, element);
             while (isValid(pos) && this.posToPiece(pos) === "") {
-                pos = addVec(pos, element);
+                pos = this.posAdd(pos, element);
             }
             if (!isValid(pos)) return;
             if (!oppositePieceSet.has(this.posToPiece(pos))) return;
@@ -219,8 +211,8 @@ class Chess {
             if (this.posToPiece(pos).toLowerCase() === "p") {
                 if (color === "w" && element.rank > 0) return;
                 if (color === "b" && element.rank < 0) return;
-                if (pos.file !== addVec(kingPos, element).file) return;
-                if (pos.rank !== addVec(kingPos, element).rank) return;
+                if (pos.file !== this.posAdd(kingPos, element).file) return;
+                if (pos.rank !== this.posAdd(kingPos, element).rank) return;
             }
             checkingPieces.push(pos);
         });
@@ -237,7 +229,7 @@ class Chess {
 
         // knight check
         this.knightMoves.filter(isValidRelative).forEach(element => {
-            let pos = addVec(kingPos, element);
+            let pos = this.posAdd(kingPos, element);
             if (!oppositePieceSet.has(this.posToPiece(pos))) return;
             if (this.posToPiece(pos).toLowerCase() !== "n") return;
             checkingPieces.push(pos);
