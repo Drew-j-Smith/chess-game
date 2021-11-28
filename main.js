@@ -68,8 +68,15 @@ function pieceMovement() {
     });
     $("chess-square").droppable({
         accept: function (dropElem) {
-            return chess.valid([dropElem.parent().index(), dropElem.parent().parent().index()],
-                [$(this).index(), $(this).parent().index()]);
+            return chess.valid(
+                {
+                    file: dropElem.parent().index(), 
+                    rank: dropElem.parent().parent().index()
+                },
+                {
+                    file: $(this).index(), 
+                    rank: $(this).parent().index()
+                });
         },
         drop: function (event, ui) {
             if ($(this).children().length === 0) {
@@ -78,10 +85,17 @@ function pieceMovement() {
                 captureAudio.play();
             }
 
-            chess.move([ui.draggable.parent().index(), ui.draggable.parent().parent().index()],
-                [$(this).index(), $(this).parent().index()]);
+            chess.move(
+                {
+                    file: ui.draggable.parent().index(), 
+                    rank: ui.draggable.parent().parent().index()},
+                {
+                    file: $(this).index(), 
+                    rank: $(this).parent().index()
+                });
             console.log(chess.fen());
-            console.log(`"${chess.findCheckingPieces("w")}"\n"${chess.findCheckingPieces("b")}"`)
+            console.log(chess.findCheckingPieces("w"));
+            console.log(chess.findCheckingPieces("b"));
             $(this).children().remove();
             $(this).append(ui.draggable);
         }
