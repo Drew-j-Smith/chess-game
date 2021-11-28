@@ -29,13 +29,13 @@ const blackPawnMoves = [
     { file: -1, rank: 1, valid: squareNonEmpty },
     { file: 0, rank: 1, valid: squareEmpty },
     { file: 1, rank: 1, valid: squareNonEmpty },
-    { file: 0, rank: 2, valid: (chess, dst) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 2 }) === "" && dst.rank === 3 }
+    { file: 0, rank: 2, valid: (chess, dst) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 2 }) && dst.rank === 3 }
 ];
 const whitePawnMoves = [
     { file: -1, rank: -1, valid: squareNonEmpty },
     { file: 0, rank: -1, valid: squareEmpty },
     { file: 1, rank: -1, valid: squareNonEmpty },
-    { file: 0, rank: -2, valid: (chess, dst) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 5 }) === "" && dst.rank === 4 }
+    { file: 0, rank: -2, valid: (chess, dst) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 5 }) && dst.rank === 4 }
 ];
 const pieces = {
     r: { moveSet: ranksAndFiles, absoluteEquals: false },
