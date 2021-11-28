@@ -24,16 +24,16 @@ const knightMoves = [
     { file: -1, rank: -2 }
 ];
 const blackPawnMoves = [
-    { file: -1, rank: 1 },
-    { file: 0, rank: 1 },
-    { file: 1, rank: 1 },
-    { file: 0, rank: 2 }
+    { file: -1, rank: 1, valid: (chess, dst) => chess.posToPiece(dst) !== "" },
+    { file: 0, rank: 1, valid: (chess, dst) => chess.posToPiece(dst) === "" },
+    { file: 1, rank: 1, valid: (chess, dst) => chess.posToPiece(dst) !== "" },
+    { file: 0, rank: 2, valid: (chess, dst) => chess.posToPiece({ file: dst.file, rank: 2 }) === "" && dst.rank === 3 }
 ];
 const whitePawnMoves = [
-    { file: -1, rank: -1 },
-    { file: 0, rank: -1 },
-    { file: 1, rank: -1 },
-    { file: 0, rank: -2 }
+    { file: -1, rank: -1, valid: (chess, dst) => chess.posToPiece(dst) !== "" },
+    { file: 0, rank: -1, valid: (chess, dst) => chess.posToPiece(dst) === "" },
+    { file: 1, rank: -1, valid: (chess, dst) => chess.posToPiece(dst) !== "" },
+    { file: 0, rank: -2, valid: (chess, dst) => chess.posToPiece({ file: dst.file, rank: 5 }) === "" && dst.rank === 4 }
 ];
 const pieces = {
     r: { moveSet: ranksAndFiles, absoluteEquals: false },
@@ -102,13 +102,8 @@ class Chess {
         };
 
         if (posEquals(start, dst)) return false;
-        if (this.turn === "w") {
-            if (blackPieceSet.has(this.posToPiece(start))) return false;
-            if (whitePieceSet.has(this.posToPiece(dst))) return false;
-        } else {
-            if (whitePieceSet.has(this.posToPiece(start))) return false;
-            if (blackPieceSet.has(this.posToPiece(dst))) return false;
-        }
+        if ((this.turn === "w" ? blackPieceSet : whitePieceSet).has(this.posToPiece(start))) return false;
+        if ((this.turn === "w" ? whitePieceSet : blackPieceSet).has(this.posToPiece(dst))) return false;
 
         let piece = pieces[this.posToPiece(start)];
         let direction = piece.moveSet.find(element =>
@@ -122,25 +117,10 @@ class Chess {
             pos = posAdd(pos, direction);
         }
         
-        switch (this.posToPiece(start)) {
-            case "p": {
-                if (diff.file !== 0 && this.posToPiece(dst) === "") return false;
-                if (diff.file === 0 && this.posToPiece(dst) !== "") return false;
-                if (diff.rank === 2 && this.posToPiece({ file: start.file, rank: 2 }) !== "") return false;
-                if (diff.rank === 2 && start.rank !== 1) return false;
-                break;
-                // TODO en pessant
-            }
-            case "P": {
-                if (diff.file !== 0 && this.posToPiece(dst) === "") return false;
-                if (diff.file === 0 && this.posToPiece(dst) !== "") return false;
-                if (diff.rank === -2 && this.posToPiece({ file: start.file, rank: 5 }) !== "") return false;
-                if (diff.rank === -2 && start.rank !== 6) return false;
-                break;
-                // TODO en pessant
-            }
+        if ("valid" in direction) {
+            if (!direction["valid"](this, dst)) return false;
         }
-        // TODO make sure not in check
+        // TODO make sure not in check, en passent and castling
         return true;
     }
 
