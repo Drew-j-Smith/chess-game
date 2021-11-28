@@ -113,18 +113,18 @@ function loadFen(fen) {
     let rank = 1;
     for (let i = 0; i < fen.length; i++) {
         if (fen[i] === " ") break;
-        if (chess.pieceSet.has(fen[i])) {
-            $(`chess-board chess-row:nth-child(${rank}) chess-square:nth-child(${file})`)
-                .append(`<chess-piece class="${fen[i]}"></chess-piece>`);
-            file++;
-            continue;
-        }
         if (fen[i] === "/") {
             file = 1;
             rank++;
             continue;
         }
-        file += parseInt(fen[i], 10);
+        if (fen[i] >= "0" && fen[i] <= "9") {
+            file += parseInt(fen[i], 10);
+            continue
+        }
+        $(`chess-board chess-row:nth-child(${rank}) chess-square:nth-child(${file})`)
+                .append(`<chess-piece class="${fen[i]}"></chess-piece>`);
+        file++;
     }
     pieceMovement();
 }

@@ -1,57 +1,69 @@
+const whitePieceSet = new Set(["R", "N", "B", "Q", "K", "P"]);
+const blackPieceSet = new Set(["r", "n", "b", "q", "k", "p"]);
+const pieceSet = new Set([...whitePieceSet, ...blackPieceSet]);
+const diagonals = [
+    { file: 1, rank: 1 },
+    { file: 1, rank: -1 },
+    { file: -1, rank: 1 },
+    { file: -1, rank: -1 }
+];
+const ranksAndFiles = [
+    { file: 1, rank: 0 },
+    { file: -1, rank: 0 },
+    { file: 0, rank: 1 },
+    { file: 0, rank: -1 }
+];
+const knightMoves = [
+    { file: 2, rank: 1 },
+    { file: 1, rank: 2 },
+    { file: 2, rank: -1 },
+    { file: 1, rank: -2 },
+    { file: -2, rank: 1 },
+    { file: -1, rank: 2 },
+    { file: -2, rank: -1 },
+    { file: -1, rank: -2 }
+];
+const blackPawnMoves = [
+    { file: -1, rank: 1 },
+    { file: 0, rank: 1 },
+    { file: 1, rank: 1 },
+    { file: 0, rank: 2 }
+];
+const whitePawnMoves = [
+    { file: -1, rank: -1 },
+    { file: 0, rank: -1 },
+    { file: 1, rank: -1 },
+    { file: 0, rank: -2 }
+];
+const pieces = {
+    r: { moveSet: ranksAndFiles, absoluteEquals: false },
+    R: { moveSet: ranksAndFiles, absoluteEquals: false },
+    n: { moveSet: knightMoves, absoluteEquals: true },
+    N: { moveSet: knightMoves, absoluteEquals: true },
+    b: { moveSet: diagonals, absoluteEquals: false },
+    B: { moveSet: diagonals, absoluteEquals: false },
+    q: { moveSet: ranksAndFiles.concat(diagonals), absoluteEquals: false },
+    Q: { moveSet: ranksAndFiles.concat(diagonals), absoluteEquals: false },
+    k: { moveSet: ranksAndFiles.concat(diagonals), absoluteEquals: true },
+    K: { moveSet: ranksAndFiles.concat(diagonals), absoluteEquals: true },
+    p: { moveSet: blackPawnMoves, absoluteEquals: true },
+    P: { moveSet: whitePawnMoves, absoluteEquals: true }
+};
+
+const posEquals = (first, second) => first.rank === second.rank && first.file === second.file;
+const posRelativeEqual = (first, second) =>
+    (first.rank > 0) === (second.rank > 0) &&
+    (first.rank < 0) === (second.rank < 0) &&
+    (first.file > 0) === (second.file > 0) &&
+    (first.file < 0) === (second.file < 0);
+const posAdd = (first, second) => {
+    return {
+        file: first.file + second.file,
+        rank: first.rank + second.rank
+    };
+};
+
 class Chess {
-
-    whitePieceSet = new Set(["R", "N", "B", "Q", "K", "P"]);
-    blackPieceSet = new Set(["r", "n", "b", "q", "k", "p"]);
-    pieceSet = new Set([...this.whitePieceSet, ...this.blackPieceSet]);
-    diagonals = [
-        { file: 1, rank: 1 },
-        { file: 1, rank: -1 },
-        { file: -1, rank: 1 },
-        { file: -1, rank: -1 }
-    ];
-    ranksAndFiles = [
-        { file: 1, rank: 0 },
-        { file: -1, rank: 0 },
-        { file: 0, rank: 1 },
-        { file: 0, rank: -1 }
-    ];
-    knightMoves = [
-        { file: 2, rank: 1 },
-        { file: 1, rank: 2 },
-        { file: 2, rank: -1 },
-        { file: 1, rank: -2 },
-        { file: -2, rank: 1 },
-        { file: -1, rank: 2 },
-        { file: -2, rank: -1 },
-        { file: -1, rank: -2 }
-    ];
-    blackPawnMoves = [
-        { file: -1, rank: 1 },
-        { file: 0, rank: 1 },
-        { file: 1, rank: 1 },
-        { file: 0, rank: 2 }
-    ];
-    whitePawnMoves = [
-        { file: -1, rank: -1 },
-        { file: 0, rank: -1 },
-        { file: 1, rank: -1 },
-        { file: 0, rank: -2 }
-    ];
-    pieces = {
-        r: { moveSet: this.ranksAndFiles, absoluteEquals: false },
-        R: { moveSet: this.ranksAndFiles, absoluteEquals: false },
-        n: { moveSet: this.knightMoves, absoluteEquals: true },
-        N: { moveSet: this.knightMoves, absoluteEquals: true },
-        b: { moveSet: this.diagonals, absoluteEquals: false },
-        B: { moveSet: this.diagonals, absoluteEquals: false },
-        q: { moveSet: this.ranksAndFiles.concat(this.diagonals), absoluteEquals: false },
-        Q: { moveSet: this.ranksAndFiles.concat(this.diagonals), absoluteEquals: false },
-        k: { moveSet: this.ranksAndFiles.concat(this.diagonals), absoluteEquals: true },
-        K: { moveSet: this.ranksAndFiles.concat(this.diagonals), absoluteEquals: true },
-        p: { moveSet: this.blackPawnMoves, absoluteEquals: true },
-        P: { moveSet: this.whitePawnMoves, absoluteEquals: true }
-    }
-
     constructor(fen) {
         let fenArr = fen.split(' ');
 
@@ -59,7 +71,7 @@ class Chess {
         let rank = []
         let boardStr = fenArr[0];
         for (let i = 0; i < boardStr.length; i++) {
-            if (this.pieceSet.has(boardStr[i])) {
+            if (pieceSet.has(boardStr[i])) {
                 rank.push(boardStr[i]);
                 continue;
             }
@@ -81,20 +93,7 @@ class Chess {
         this.moveCount = parseInt(fenArr[5], 10);
     }
 
-
     posToPiece = (pos) => this.board[pos.rank][pos.file];
-    posEquals = (first, second) => first.rank === second.rank && first.file === second.file;
-    posRelativeEqual = (first, second) =>
-        (first.rank > 0) === (second.rank > 0) &&
-        (first.rank < 0) === (second.rank < 0) &&
-        (first.file > 0) === (second.file > 0) &&
-        (first.file < 0) === (second.file < 0);
-    posAdd = (first, second) => {
-        return {
-            file: first.file + second.file,
-            rank: first.rank + second.rank
-        };
-    };
 
     valid(start, dst) {
         let diff = {
@@ -102,25 +101,25 @@ class Chess {
             file: dst.file - start.file
         };
 
-        if (this.posEquals(start, dst)) return false;
+        if (posEquals(start, dst)) return false;
         if (this.turn === "w") {
-            if (this.blackPieceSet.has(this.posToPiece(start))) return false;
-            if (this.whitePieceSet.has(this.posToPiece(dst))) return false;
+            if (blackPieceSet.has(this.posToPiece(start))) return false;
+            if (whitePieceSet.has(this.posToPiece(dst))) return false;
         } else {
-            if (this.whitePieceSet.has(this.posToPiece(start))) return false;
-            if (this.blackPieceSet.has(this.posToPiece(dst))) return false;
+            if (whitePieceSet.has(this.posToPiece(start))) return false;
+            if (blackPieceSet.has(this.posToPiece(dst))) return false;
         }
 
-        let piece = this.pieces[this.posToPiece(start)];
+        let piece = pieces[this.posToPiece(start)];
         let direction = piece.moveSet.find(element =>
-            piece.absoluteEquals ? this.posEquals(element, diff) : this.posRelativeEqual(element, diff));
+            piece.absoluteEquals ? posEquals(element, diff) : posRelativeEqual(element, diff));
         if (!direction) return false;
         if (Math.abs(direction.rank) === 1 && Math.abs(direction.file) === 1 &&
             Math.abs(diff.rank) !== Math.abs(diff.file)) return false;
-        let pos = this.posAdd(start, direction);
-        while (!this.posEquals(pos, dst)) {
+        let pos = posAdd(start, direction);
+        while (!posEquals(pos, dst)) {
             if (this.posToPiece(pos) !== "") return false;
-            pos = this.posAdd(pos, direction);
+            pos = posAdd(pos, direction);
         }
         
         switch (this.posToPiece(start)) {
@@ -183,19 +182,19 @@ class Chess {
             file: file,
             rank: rank
         };
-        let oppositePieceSet = color === "w" ? this.blackPieceSet : this.whitePieceSet;
+        let oppositePieceSet = color === "w" ? blackPieceSet : whitePieceSet;
 
         let isValid = (pos) =>
             0 <= pos.file &&
             pos.file < 8 &&
             0 <= pos.rank &&
             pos.rank < 8;
-        let isValidRelative = (pos) => isValid(this.posAdd(pos, kingPos));
+        let isValidRelative = (pos) => isValid(posAdd(pos, kingPos));
         
         let findPiece = (element) => {
-            let pos = this.posAdd(kingPos, element);
+            let pos = posAdd(kingPos, element);
             while (isValid(pos) && this.posToPiece(pos) === "") {
-                pos = this.posAdd(pos, element);
+                pos = posAdd(pos, element);
             }
             if (!isValid(pos)) return;
             if (!oppositePieceSet.has(this.posToPiece(pos))) return;
@@ -204,22 +203,22 @@ class Chess {
 
 
         // bishop/queen/pawn check
-        this.diagonals.filter(isValidRelative).forEach(element => {
+        diagonals.filter(isValidRelative).forEach(element => {
             let pos = findPiece(element);
             if (!pos) return;
             if (!new Set(["b", "q", "p"]).has(this.posToPiece(pos).toLowerCase())) return;
             if (this.posToPiece(pos).toLowerCase() === "p") {
                 if (color === "w" && element.rank > 0) return;
                 if (color === "b" && element.rank < 0) return;
-                if (pos.file !== this.posAdd(kingPos, element).file) return;
-                if (pos.rank !== this.posAdd(kingPos, element).rank) return;
+                if (pos.file !== posAdd(kingPos, element).file) return;
+                if (pos.rank !== posAdd(kingPos, element).rank) return;
             }
             checkingPieces.push(pos);
         });
 
 
         // rook/queen check
-        this.ranksAndFiles.filter(isValidRelative).forEach(element => {
+        ranksAndFiles.filter(isValidRelative).forEach(element => {
             let pos = findPiece(element);
             if (!pos) return;
             if (this.posToPiece(pos).toLowerCase() !== "r" &&
@@ -228,8 +227,8 @@ class Chess {
         });
 
         // knight check
-        this.knightMoves.filter(isValidRelative).forEach(element => {
-            let pos = this.posAdd(kingPos, element);
+        knightMoves.filter(isValidRelative).forEach(element => {
+            let pos = posAdd(kingPos, element);
             if (!oppositePieceSet.has(this.posToPiece(pos))) return;
             if (this.posToPiece(pos).toLowerCase() !== "n") return;
             checkingPieces.push(pos);
@@ -243,7 +242,7 @@ class Chess {
         let count = 0;
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
-                if (!this.pieceSet.has(this.board[i][j])) {
+                if (!pieceSet.has(this.board[i][j])) {
                     count++;
                     continue;
                 }
