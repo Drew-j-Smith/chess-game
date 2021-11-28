@@ -23,17 +23,19 @@ const knightMoves = [
     { file: -2, rank: -1 },
     { file: -1, rank: -2 }
 ];
+const squareNonEmpty = (chess, dst) => chess.posToPiece(dst) !== "";
+const squareEmpty = (chess, dst) => chess.posToPiece(dst) === "";
 const blackPawnMoves = [
-    { file: -1, rank: 1, valid: (chess, dst) => chess.posToPiece(dst) !== "" },
-    { file: 0, rank: 1, valid: (chess, dst) => chess.posToPiece(dst) === "" },
-    { file: 1, rank: 1, valid: (chess, dst) => chess.posToPiece(dst) !== "" },
-    { file: 0, rank: 2, valid: (chess, dst) => chess.posToPiece({ file: dst.file, rank: 2 }) === "" && dst.rank === 3 }
+    { file: -1, rank: 1, valid: squareNonEmpty },
+    { file: 0, rank: 1, valid: squareEmpty },
+    { file: 1, rank: 1, valid: squareNonEmpty },
+    { file: 0, rank: 2, valid: (chess, dst) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 2 }) === "" && dst.rank === 3 }
 ];
 const whitePawnMoves = [
-    { file: -1, rank: -1, valid: (chess, dst) => chess.posToPiece(dst) !== "" },
-    { file: 0, rank: -1, valid: (chess, dst) => chess.posToPiece(dst) === "" },
-    { file: 1, rank: -1, valid: (chess, dst) => chess.posToPiece(dst) !== "" },
-    { file: 0, rank: -2, valid: (chess, dst) => chess.posToPiece({ file: dst.file, rank: 5 }) === "" && dst.rank === 4 }
+    { file: -1, rank: -1, valid: squareNonEmpty },
+    { file: 0, rank: -1, valid: squareEmpty },
+    { file: 1, rank: -1, valid: squareNonEmpty },
+    { file: 0, rank: -2, valid: (chess, dst) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 5 }) === "" && dst.rank === 4 }
 ];
 const pieces = {
     r: { moveSet: ranksAndFiles, absoluteEquals: false },
@@ -60,6 +62,12 @@ const posAdd = (first, second) => {
     return {
         file: first.file + second.file,
         rank: first.rank + second.rank
+    };
+};
+const posSubtract = (first, second) => {
+    return {
+        file: first.file - second.file,
+        rank: first.rank - second.rank
     };
 };
 
@@ -169,50 +177,24 @@ class Chess {
             pos.file < 8 &&
             0 <= pos.rank &&
             pos.rank < 8;
-        let isValidRelative = (pos) => isValid(posAdd(pos, kingPos));
-        
-        let findPiece = (element) => {
-            let pos = posAdd(kingPos, element);
-            while (isValid(pos) && this.posToPiece(pos) === "") {
-                pos = posAdd(pos, element);
-            }
-            if (!isValid(pos)) return;
-            if (!oppositePieceSet.has(this.posToPiece(pos))) return;
-            return pos;
+
+
+        for (const pieceType in pieces) {
+            if (!oppositePieceSet.has(pieceType)) continue;
+            pieces[pieceType].moveSet.forEach(element => {
+                let pos = posSubtract(kingPos, element);
+                while (isValid(pos) && this.posToPiece(pos) === "" && !pieces[pieceType].absoluteEquals) {
+                    pos = posSubtract(pos, element);
+                }
+                if (!isValid(pos)) return;
+                if (this.posToPiece(pos) !== pieceType) return;
+                if ("valid" in element) {
+                    if (!element["valid"](this, kingPos)) return;
+                }
+
+                checkingPieces.push(pos)
+            });
         }
-
-
-        // bishop/queen/pawn check
-        diagonals.filter(isValidRelative).forEach(element => {
-            let pos = findPiece(element);
-            if (!pos) return;
-            if (!new Set(["b", "q", "p"]).has(this.posToPiece(pos).toLowerCase())) return;
-            if (this.posToPiece(pos).toLowerCase() === "p") {
-                if (color === "w" && element.rank > 0) return;
-                if (color === "b" && element.rank < 0) return;
-                if (pos.file !== posAdd(kingPos, element).file) return;
-                if (pos.rank !== posAdd(kingPos, element).rank) return;
-            }
-            checkingPieces.push(pos);
-        });
-
-
-        // rook/queen check
-        ranksAndFiles.filter(isValidRelative).forEach(element => {
-            let pos = findPiece(element);
-            if (!pos) return;
-            if (this.posToPiece(pos).toLowerCase() !== "r" &&
-                this.posToPiece(pos).toLowerCase() !== "q") return;
-            checkingPieces.push(pos);
-        });
-
-        // knight check
-        knightMoves.filter(isValidRelative).forEach(element => {
-            let pos = posAdd(kingPos, element);
-            if (!oppositePieceSet.has(this.posToPiece(pos))) return;
-            if (this.posToPiece(pos).toLowerCase() !== "n") return;
-            checkingPieces.push(pos);
-        });
 
         return checkingPieces;
     }
