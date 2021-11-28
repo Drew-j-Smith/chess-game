@@ -26,16 +26,16 @@ class Chess {
         { file: -1, rank: -2 }
     ];
     blackPawnMoves = [
-        {file: -1, rank: 1},
-        {file: 0, rank: 1},
-        {file: 1, rank: 1},
-        {file: 0, rank: 2}
+        { file: -1, rank: 1 },
+        { file: 0, rank: 1 },
+        { file: 1, rank: 1 },
+        { file: 0, rank: 2 }
     ];
     whitePawnMoves = [
-        {file: -1, rank: -1},
-        {file: 0, rank: -1},
-        {file: 1, rank: -1},
-        {file: 0, rank: -2}
+        { file: -1, rank: -1 },
+        { file: 0, rank: -1 },
+        { file: 1, rank: -1 },
+        { file: 0, rank: -2 }
     ];
 
     constructor(fen) {
@@ -75,25 +75,30 @@ class Chess {
             rank: dst.rank - start.rank,
             file: dst.file - start.file
         };
-        let relativeEqual = (first, second) => 
-            (first.rank > 0) === (second.rank > 0) && 
+        let relativeEqual = (first, second) =>
+            (first.rank > 0) === (second.rank > 0) &&
             (first.rank < 0) === (second.rank < 0) &&
-            (first.file > 0) === (second.file > 0) && 
+            (first.file > 0) === (second.file > 0) &&
             (first.file < 0) === (second.file < 0);
         let posEquals = (first, second) => first.rank === second.rank && first.file === second.file;
-        let checkForIntermediatePieces = (direction) => {
-
+        let findValidDirection = (moves, absoluteEquals) => {
+            let direction = moves.find(element =>
+                absoluteEquals ? posEquals(element, diff) : relativeEqual(element, diff));
+            if (!direction) return;
             if (Math.abs(direction.rank) === 1 && Math.abs(direction.file) === 1 &&
-                Math.abs(diff.rank) !== Math.abs(diff.file)) return true;
-            let pos = start;
+                Math.abs(diff.rank) !== Math.abs(diff.file)) return;
+            let pos = {
+                file: start.file + direction.file,
+                rank: start.rank + direction.rank
+            }
             while (!posEquals(pos, dst)) {
+                if (this.posToPiece(pos) !== "") return;
                 pos = {
                     file: pos.file + direction.file,
                     rank: pos.rank + direction.rank
                 }
-                if (!posEquals(pos, dst) && this.posToPiece(pos) !== "") return true;
             }
-            return false;
+            return direction;
         }
         if (start.rank === dst.rank && start.file === dst.file) return false;
         if (this.turn === "w") {
@@ -108,48 +113,36 @@ class Chess {
                 return false;
             case "r":
             case "R": {
-                let direction = this.ranksAndFiles.find(element =>
-                    relativeEqual(element, diff));
+                let direction = findValidDirection(this.ranksAndFiles, false);
                 if (!direction) return false;
-                if (checkForIntermediatePieces(direction)) return false;
                 break;
             }
             case "n":
             case "N": {
-                let direction = this.knightMoves.find(element =>
-                    element.file === diff.file &&
-                    element.rank === diff.rank);
+                let direction = findValidDirection(this.knightMoves, true);
                 if (!direction) return false;
                 break;
             }
             case "b":
             case "B": {
-                let direction = this.diagonals.find(element =>
-                    relativeEqual(element, diff));
+                let direction = findValidDirection(this.diagonals, false);
                 if (!direction) return false;
-                if (checkForIntermediatePieces(direction)) return false;
                 break;
             }
             case "q":
             case "Q": {
-                let direction = this.ranksAndFiles.concat(this.diagonals).find(element =>
-                    relativeEqual(element, diff));
+                let direction = findValidDirection(this.ranksAndFiles.concat(this.diagonals), false);
                 if (!direction) return false;
-                if (checkForIntermediatePieces(direction)) return false;
                 break;
             }
             case "k":
             case "K": {
-                let direction = this.ranksAndFiles.concat(this.diagonals).find(element =>
-                    element.file === diff.file &&
-                    element.rank === diff.rank);
+                let direction = findValidDirection(this.ranksAndFiles.concat(this.diagonals), true);
                 if (!direction) return false;
                 break;
             }
             case "p": {
-                let direction = this.blackPawnMoves.find(element =>
-                    element.file === diff.file &&
-                    element.rank === diff.rank);
+                let direction = findValidDirection(this.blackPawnMoves, true);
                 if (!direction) return false;
                 if (diff.file !== 0 && this.posToPiece(dst) === "") return false;
                 if (diff.file === 0 && this.posToPiece(dst) !== "") return false;
@@ -159,9 +152,7 @@ class Chess {
                 // TODO en pessant
             }
             case "P": {
-                let direction = this.whitePawnMoves.find(element =>
-                    element.file === diff.file &&
-                    element.rank === diff.rank);
+                let direction = findValidDirection(this.whitePawnMoves, true);
                 if (!direction) return false;
                 if (diff.file !== 0 && this.posToPiece(dst) === "") return false;
                 if (diff.file === 0 && this.posToPiece(dst) !== "") return false;
