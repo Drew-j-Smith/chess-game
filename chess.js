@@ -45,7 +45,8 @@ const blackCastling = [
             chess.castlingRights.includes("k") &&
             squareEmpty(chess, { rank: 0, file: 5 }) &&
             squareEmpty(chess, { rank: 0, file: 6 }) &&
-            chess.findAttackingPieces("w", { rank: 0, file: 5 }).length === 0
+            chess.findAttackingPieces("w", { rank: 0, file: 5 }).length === 0 &&
+            chess.findAttackingPieces("w", { rank: 0, file: 4 }).length === 0
     },
     {
         file: -3,
@@ -55,7 +56,8 @@ const blackCastling = [
             squareEmpty(chess, { rank: 0, file: 3 }) &&
             squareEmpty(chess, { rank: 0, file: 2 }) &&
             squareEmpty(chess, { rank: 0, file: 1 }) &&
-            chess.findAttackingPieces("w", { rank: 0, file: 3 }).length === 0
+            chess.findAttackingPieces("w", { rank: 0, file: 3 }).length === 0 &&
+            chess.findAttackingPieces("w", { rank: 0, file: 4 }).length === 0
     }
 ]
 const whiteCastling = [
@@ -66,7 +68,8 @@ const whiteCastling = [
             chess.castlingRights.includes("K") &&
             squareEmpty(chess, { rank: 7, file: 5 }) &&
             squareEmpty(chess, { rank: 7, file: 6 }) &&
-            chess.findAttackingPieces("b", { rank: 7, file: 5 }).length === 0
+            chess.findAttackingPieces("b", { rank: 7, file: 5 }).length === 0 &&
+            chess.findAttackingPieces("b", { rank: 7, file: 4 }).length === 0
     },
     {
         file: -3,
@@ -76,7 +79,8 @@ const whiteCastling = [
             squareEmpty(chess, { rank: 7, file: 3 }) &&
             squareEmpty(chess, { rank: 7, file: 2 }) &&
             squareEmpty(chess, { rank: 7, file: 1 }) &&
-            chess.findAttackingPieces("b", { rank: 7, file: 3 }).length === 0
+            chess.findAttackingPieces("b", { rank: 7, file: 3 }).length === 0 &&
+            chess.findAttackingPieces("b", { rank: 7, file: 4 }).length === 0
     }
 ]
 const pieces = {
@@ -196,6 +200,26 @@ class Chess {
                 this.enPassent = String.fromCharCode(97 + start.file) + "3"
             }
         }
+
+        let updateCastling = (king, queen, rook, rank) => {
+            if (this.castlingRights.includes(king) || this.castlingRights.includes(queen)) {
+                if (this.posToPiece(start) === king) {
+                    this.castlingRights = this.castlingRights.replace(king, "");
+                    this.castlingRights = this.castlingRights.replace(queen, "");
+                }
+                if (this.posToPiece(start) === rook && posEquals(start, { file: 0, rank: rank})) {
+                    this.castlingRights = this.castlingRights.replace(queen, "");
+                }
+                if (this.posToPiece(start) === rook && posEquals(start, { file: 7, rank: rank})) {
+                    this.castlingRights = this.castlingRights.replace(king, "");
+                }
+                if (this.castlingRights.length == 0) {
+                    this.castlingRights = "-";
+                }
+            }
+        }
+        updateCastling("k", "q", "r", 0);
+        updateCastling("K", "Q", "R", 7);
 
         this.board[dst.rank][dst.file] = this.posToPiece(start);
         this.board[start.rank][start.file] = "";
