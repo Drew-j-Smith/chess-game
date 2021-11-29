@@ -142,7 +142,7 @@ class Chess {
 
         this.turn = fenArr[1];
         this.castlingRights = fenArr[2];
-        this.enPassent = fenArr[3];
+        this.enPassant = fenArr[3];
         this.fiftyMove = parseInt(fenArr[4], 10);
         this.moveCount = parseInt(fenArr[5], 10);
     }
@@ -174,12 +174,12 @@ class Chess {
         if ("valid" in direction) {
             if (!direction["valid"](this, dst)) return false;
         }
-        // TODO make sure not in check, en passent and castling
+        // TODO make sure not in check
         return true;
     }
 
     move(start, dst) {
-        // TODO implement castling and en passent
+        // TODO implement castling and en passant
 
         if (this.posToPiece(dst) !== "" || this.posToPiece(start).toLowerCase() === "p") {
             this.fiftyMove = 0;
@@ -187,19 +187,18 @@ class Chess {
             this.fiftyMove++;
         }
 
-        this.enPassent = "-";
-        if (this.posToPiece(start) === "p" && posSubtract(dst, start).rank === 2) {
-            if (start.file > 0 && this.posToPiece({ file: start.file - 1, rank: 3}) === "P" ||
-                start.file < 7 && this.posToPiece({ file: start.file + 1, rank: 3}) === "P" ) { 
-                this.enPassent = String.fromCharCode(97 + start.file) + "6"
+        this.enPassant = "-";
+        let updateEnPassant = (pawn, rank, rankLetter) => {
+            let oppositePawn = pawn === "p" ? "P" : "p";
+            if (this.posToPiece(start) === pawn && Math.abs(posSubtract(dst, start).rank) === 2) {
+                if (start.file > 0 && this.posToPiece({ file: start.file - 1, rank: rank}) === oppositePawn ||
+                    start.file < 7 && this.posToPiece({ file: start.file + 1, rank: rank}) === oppositePawn ) { 
+                    this.enPassant = String.fromCharCode(97 + start.file) + rankLetter;
+                }
             }
         }
-        if (this.posToPiece(start) === "P" && posSubtract(dst, start).rank === -2) {
-            if (start.file > 0 && this.posToPiece({ file: start.file - 1, rank: 4}) === "p" ||
-                start.file < 7 && this.posToPiece({ file: start.file + 1, rank: 4}) === "p" ) { 
-                this.enPassent = String.fromCharCode(97 + start.file) + "3"
-            }
-        }
+        updateEnPassant("p", 3, "6");
+        updateEnPassant("P", 4, "3");
 
         let updateCastling = (king, queen, rook, rank) => {
             if (this.castlingRights.includes(king) || this.castlingRights.includes(queen)) {
@@ -305,6 +304,6 @@ class Chess {
             if (i !== 7) res += "/";
         }
 
-        return `${res} ${this.turn} ${this.castlingRights} ${this.enPassent} ${this.fiftyMove} ${this.moveCount}`
+        return `${res} ${this.turn} ${this.castlingRights} ${this.enPassant} ${this.fiftyMove} ${this.moveCount}`
     }
 }
