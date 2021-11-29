@@ -183,6 +183,20 @@ class Chess {
             this.fiftyMove++;
         }
 
+        this.enPassent = "-";
+        if (this.posToPiece(start) === "p" && posSubtract(dst, start).rank === 2) {
+            if (start.file > 0 && this.posToPiece({ file: start.file - 1, rank: 3}) === "P" ||
+                start.file < 7 && this.posToPiece({ file: start.file + 1, rank: 3}) === "P" ) { 
+                this.enPassent = String.fromCharCode(97 + start.file) + "6"
+            }
+        }
+        if (this.posToPiece(start) === "P" && posSubtract(dst, start).rank === -2) {
+            if (start.file > 0 && this.posToPiece({ file: start.file - 1, rank: 4}) === "p" ||
+                start.file < 7 && this.posToPiece({ file: start.file + 1, rank: 4}) === "p" ) { 
+                this.enPassent = String.fromCharCode(97 + start.file) + "3"
+            }
+        }
+
         this.board[dst.rank][dst.file] = this.posToPiece(start);
         this.board[start.rank][start.file] = "";
 
@@ -264,7 +278,7 @@ class Chess {
                 res += count;
                 count = 0;
             }
-            res += "/";
+            if (i !== 7) res += "/";
         }
 
         return `${res} ${this.turn} ${this.castlingRights} ${this.enPassent} ${this.fiftyMove} ${this.moveCount}`
