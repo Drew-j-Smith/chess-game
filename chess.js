@@ -37,6 +37,48 @@ const whitePawnMoves = [
     { file: 1, rank: -1, valid: squareNonEmpty },
     { file: 0, rank: -2, valid: (chess, dst) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 5 }) && dst.rank === 4 }
 ];
+const blackCastling = [
+    {
+        file: 2,
+        rank: 0,
+        valid: (chess, dst) =>
+            chess.castlingRights.includes("k") &&
+            squareEmpty(chess, { rank: 0, file: 5 }) &&
+            squareEmpty(chess, { rank: 0, file: 6 }) &&
+            chess.findAttackingPieces("w", { rank: 0, file: 5 }).length === 0
+    },
+    {
+        file: -3,
+        rank: 0,
+        valid: (chess, dst) =>
+            chess.castlingRights.includes("q") &&
+            squareEmpty(chess, { rank: 0, file: 3 }) &&
+            squareEmpty(chess, { rank: 0, file: 2 }) &&
+            squareEmpty(chess, { rank: 0, file: 1 }) &&
+            chess.findAttackingPieces("w", { rank: 0, file: 3 }).length === 0
+    }
+]
+const whiteCastling = [
+    {
+        file: 2,
+        rank: 0,
+        valid: (chess, dst) =>
+            chess.castlingRights.includes("K") &&
+            squareEmpty(chess, { rank: 7, file: 5 }) &&
+            squareEmpty(chess, { rank: 7, file: 6 }) &&
+            chess.findAttackingPieces("b", { rank: 7, file: 5 }).length === 0
+    },
+    {
+        file: -3,
+        rank: 0,
+        valid: (chess, dst) =>
+            chess.castlingRights.includes("Q") &&
+            squareEmpty(chess, { rank: 7, file: 3 }) &&
+            squareEmpty(chess, { rank: 7, file: 2 }) &&
+            squareEmpty(chess, { rank: 7, file: 1 }) &&
+            chess.findAttackingPieces("b", { rank: 7, file: 3 }).length === 0
+    }
+]
 const pieces = {
     r: { moveSet: ranksAndFiles, absoluteEquals: false },
     R: { moveSet: ranksAndFiles, absoluteEquals: false },
@@ -46,8 +88,8 @@ const pieces = {
     B: { moveSet: diagonals, absoluteEquals: false },
     q: { moveSet: ranksAndFiles.concat(diagonals), absoluteEquals: false },
     Q: { moveSet: ranksAndFiles.concat(diagonals), absoluteEquals: false },
-    k: { moveSet: ranksAndFiles.concat(diagonals), absoluteEquals: true },
-    K: { moveSet: ranksAndFiles.concat(diagonals), absoluteEquals: true },
+    k: { moveSet: ranksAndFiles.concat(diagonals).concat(blackCastling), absoluteEquals: true },
+    K: { moveSet: ranksAndFiles.concat(diagonals).concat(whiteCastling), absoluteEquals: true },
     p: { moveSet: blackPawnMoves, absoluteEquals: true },
     P: { moveSet: whitePawnMoves, absoluteEquals: true }
 };
@@ -124,7 +166,7 @@ class Chess {
             if (this.posToPiece(pos) !== "") return false;
             pos = posAdd(pos, direction);
         }
-        
+
         if ("valid" in direction) {
             if (!direction["valid"](this, dst)) return false;
         }
@@ -158,8 +200,6 @@ class Chess {
     }
 
     findCheckingPieces(color) {
-        let checkingPieces = [];
-
         let rank = this.board.findIndex(element =>
             color === "w" && element.includes("K") ||
             color === "b" && element.includes("k"));
@@ -170,6 +210,11 @@ class Chess {
             file: file,
             rank: rank
         };
+        return this.findAttackingPieces(color === "w" ? "b" : "w", kingPos)
+    }
+
+    findAttackingPieces(color, target) {
+        let checkingPieces = [];
         let oppositePieceSet = color === "w" ? blackPieceSet : whitePieceSet;
 
         let isValid = (pos) =>
@@ -180,16 +225,16 @@ class Chess {
 
 
         for (const pieceType in pieces) {
-            if (!oppositePieceSet.has(pieceType)) continue;
+            if (oppositePieceSet.has(pieceType)) continue;
             pieces[pieceType].moveSet.forEach(element => {
-                let pos = posSubtract(kingPos, element);
+                let pos = posSubtract(target, element);
                 while (isValid(pos) && this.posToPiece(pos) === "" && !pieces[pieceType].absoluteEquals) {
                     pos = posSubtract(pos, element);
                 }
                 if (!isValid(pos)) return;
                 if (this.posToPiece(pos) !== pieceType) return;
                 if ("valid" in element) {
-                    if (!element["valid"](this, kingPos)) return;
+                    if (!element["valid"](this, target)) return;
                 }
 
                 checkingPieces.push(pos)
