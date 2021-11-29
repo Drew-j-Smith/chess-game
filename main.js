@@ -96,6 +96,7 @@ function pieceMovement() {
                     file: $(this).index(), 
                     rank: $(this).parent().index()
                 });
+            document.location.hash = `#${chess.fen().replaceAll(" ", "_")}`
             console.log(chess.fen());
             console.log(chess.findCheckingPieces("w"));
             console.log(chess.findCheckingPieces("b"));
@@ -106,7 +107,11 @@ function pieceMovement() {
 }
 
 $(function generatePieces() {
-    loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    if (document.location.hash.length > 0) { 
+        loadFen(document.location.hash.substr(1).replaceAll("_", " "));
+    } else {
+        loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    }
 })
 
 function loadFen(fen) {
