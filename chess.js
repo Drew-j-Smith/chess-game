@@ -118,7 +118,24 @@ const posSubtract = (first, second) => {
 };
 
 class Chess {
-    constructor(fen) {
+    constructor(variable) {
+        if (variable instanceof Chess) {
+            this.copyConstructor(variable);
+        } else {
+            this.stringConstructor(variable);
+        }
+    }
+
+    copyConstructor(chess) {
+        this.board = chess.board.map(el => [...el]);
+        this.turn = chess.turn;
+        this.castlingRights = chess.castlingRights;
+        this.enPassant = chess.enPassant;
+        this.fiftyMove = chess.fiftyMove;
+        this.moveCount = chess.moveCount;
+    }
+
+    stringConstructor(fen) {
         let fenArr = fen.split(' ');
 
         this.board = [];
@@ -147,7 +164,9 @@ class Chess {
         this.moveCount = parseInt(fenArr[5], 10);
     }
 
-    posToPiece = (pos) => this.board[pos.rank][pos.file];
+    posToPiece(pos) {
+        return this.board[pos.rank][pos.file];
+    }
 
     valid(start, dst) {
         let diff = {
@@ -174,7 +193,9 @@ class Chess {
         if ("valid" in direction) {
             if (!direction["valid"](this, dst)) return false;
         }
-        // TODO make sure not in check
+        let chessCopy = new Chess(this);
+        chessCopy.move(start, dst);
+        if (chessCopy.findCheckingPieces(this.turn).length > 0) return false;
         return true;
     }
 
