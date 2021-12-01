@@ -61,7 +61,7 @@ function pieceMovement() {
             );
             if (!move) return;
             if (move.move) {
-                $(`chess-board :nth-child(${move.move.dst.rank + 1}) :nth-child(${move.move.dst.file + 1})`).append
+                $(`chess-board chess-row:nth-child(${move.move.dst.rank + 1}) chess-square:nth-child(${move.move.dst.file + 1})`).append
                 ($(`chess-board chess-row:nth-child(${move.move.start.rank + 1}) chess-square:nth-child(${move.move.start.file + 1}) chess-piece`));
             }
 
@@ -121,7 +121,7 @@ function loadFen(fen: string) {
             file += parseInt(fen[i], 10);
             continue
         }
-        $(`chess-board :nth-child(${rank}) :nth-child(${file})`)
+        $(`chess-board chess-row:nth-child(${rank}) chess-square:nth-child(${file})`)
                 .append(`<chess-piece class="${fen[i]}"></chess-piece>`);
         file++;
     }
