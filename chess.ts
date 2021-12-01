@@ -1,19 +1,30 @@
+interface Position {
+    file: number;
+    rank: number;
+}
+
+interface Move extends Position {
+    valid?: (chess: Chess, dst: Position) => boolean;
+}
+
 const whitePieceSet = new Set(["R", "N", "B", "Q", "K", "P"]);
 const blackPieceSet = new Set(["r", "n", "b", "q", "k", "p"]);
-const pieceSet = new Set([...whitePieceSet, ...blackPieceSet]);
-const diagonals = [
+const pieceSet = new Set();
+whitePieceSet.forEach(el => pieceSet.add(el));
+blackPieceSet.forEach(el => pieceSet.add(el));
+const diagonals: Array<Move> = [
     { file: 1, rank: 1 },
     { file: 1, rank: -1 },
     { file: -1, rank: 1 },
     { file: -1, rank: -1 }
 ];
-const ranksAndFiles = [
+const ranksAndFiles: Array<Move> = [
     { file: 1, rank: 0 },
     { file: -1, rank: 0 },
     { file: 0, rank: 1 },
     { file: 0, rank: -1 }
 ];
-const knightMoves = [
+const knightMoves: Array<Move> = [
     { file: 2, rank: 1 },
     { file: 1, rank: 2 },
     { file: 2, rank: -1 },
@@ -23,25 +34,25 @@ const knightMoves = [
     { file: -2, rank: -1 },
     { file: -1, rank: -2 }
 ];
-const squareNonEmpty = (chess, dst) => chess.posToPiece(dst) !== "";
-const squareEmpty = (chess, dst) => chess.posToPiece(dst) === "";
-const blackPawnMoves = [
+const squareNonEmpty = (chess: Chess, dst: Position) => chess.posToPiece(dst) !== "";
+const squareEmpty = (chess: Chess, dst: Position) => chess.posToPiece(dst) === "";
+const blackPawnMoves: Array<Move> = [
     { file: -1, rank: 1, valid: squareNonEmpty },
     { file: 0, rank: 1, valid: squareEmpty },
     { file: 1, rank: 1, valid: squareNonEmpty },
-    { file: 0, rank: 2, valid: (chess, dst) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 2 }) && dst.rank === 3 }
+    { file: 0, rank: 2, valid: (chess: Chess, dst: Position) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 2 }) && dst.rank === 3 }
 ];
-const whitePawnMoves = [
+const whitePawnMoves: Array<Move> = [
     { file: -1, rank: -1, valid: squareNonEmpty },
     { file: 0, rank: -1, valid: squareEmpty },
     { file: 1, rank: -1, valid: squareNonEmpty },
-    { file: 0, rank: -2, valid: (chess, dst) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 5 }) && dst.rank === 4 }
+    { file: 0, rank: -2, valid: (chess: Chess, dst: Position) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 5 }) && dst.rank === 4 }
 ];
-const blackCastling = [
+const blackCastling: Array<Move> = [
     {
         file: 2,
         rank: 0,
-        valid: (chess, dst) =>
+        valid: (chess: Chess, dst: Position) =>
             chess.castlingRights.includes("k") &&
             squareEmpty(chess, { rank: 0, file: 5 }) &&
             squareEmpty(chess, { rank: 0, file: 6 }) &&
@@ -51,7 +62,7 @@ const blackCastling = [
     {
         file: -3,
         rank: 0,
-        valid: (chess, dst) =>
+        valid: (chess: Chess, dst: Position) =>
             chess.castlingRights.includes("q") &&
             squareEmpty(chess, { rank: 0, file: 3 }) &&
             squareEmpty(chess, { rank: 0, file: 2 }) &&
@@ -60,11 +71,11 @@ const blackCastling = [
             chess.findAttackingPieces("w", { rank: 0, file: 4 }).length === 0
     }
 ]
-const whiteCastling = [
+const whiteCastling: Array<Move> = [
     {
         file: 2,
         rank: 0,
-        valid: (chess, dst) =>
+        valid: (chess: Chess, dst: Position) =>
             chess.castlingRights.includes("K") &&
             squareEmpty(chess, { rank: 7, file: 5 }) &&
             squareEmpty(chess, { rank: 7, file: 6 }) &&
@@ -74,7 +85,7 @@ const whiteCastling = [
     {
         file: -3,
         rank: 0,
-        valid: (chess, dst) =>
+        valid: (chess: Chess, dst: Position) =>
             chess.castlingRights.includes("Q") &&
             squareEmpty(chess, { rank: 7, file: 3 }) &&
             squareEmpty(chess, { rank: 7, file: 2 }) &&
@@ -83,7 +94,17 @@ const whiteCastling = [
             chess.findAttackingPieces("b", { rank: 7, file: 4 }).length === 0
     }
 ]
-const pieces = {
+
+interface Piece {
+    moveSet: Array<Move>;
+    absoluteEquals: boolean;
+}
+
+interface Pieces {
+    [key: string]: Piece
+}
+
+const pieces: Pieces = {
     r: { moveSet: ranksAndFiles, absoluteEquals: false },
     R: { moveSet: ranksAndFiles, absoluteEquals: false },
     n: { moveSet: knightMoves, absoluteEquals: true },
@@ -98,19 +119,19 @@ const pieces = {
     P: { moveSet: whitePawnMoves, absoluteEquals: true }
 };
 
-const posEquals = (first, second) => first.rank === second.rank && first.file === second.file;
-const posRelativeEqual = (first, second) =>
+const posEquals = (first: Position, second: Position) => first.rank === second.rank && first.file === second.file;
+const posRelativeEqual = (first: Position, second: Position) =>
     (first.rank > 0) === (second.rank > 0) &&
     (first.rank < 0) === (second.rank < 0) &&
     (first.file > 0) === (second.file > 0) &&
     (first.file < 0) === (second.file < 0);
-const posAdd = (first, second) => {
+const posAdd = (first: Position, second: Position) => {
     return {
         file: first.file + second.file,
         rank: first.rank + second.rank
     };
 };
-const posSubtract = (first, second) => {
+const posSubtract = (first: Position, second: Position) => {
     return {
         file: first.file - second.file,
         rank: first.rank - second.rank
@@ -118,7 +139,15 @@ const posSubtract = (first, second) => {
 };
 
 class Chess {
-    constructor(variable) {
+
+    board: Array<Array<string>> = [];
+    turn: string = "";
+    castlingRights: string = "";
+    enPassant: string = "";
+    fiftyMove: number = 0;
+    moveCount: number = 0;
+
+    constructor(variable: Chess | string) {
         if (variable instanceof Chess) {
             this.copyConstructor(variable);
         } else {
@@ -126,7 +155,7 @@ class Chess {
         }
     }
 
-    copyConstructor(chess) {
+    copyConstructor(chess: Chess) {
         this.board = chess.board.map(el => [...el]);
         this.turn = chess.turn;
         this.castlingRights = chess.castlingRights;
@@ -135,7 +164,7 @@ class Chess {
         this.moveCount = chess.moveCount;
     }
 
-    stringConstructor(fen) {
+    stringConstructor(fen: string) {
         let fenArr = fen.split(' ');
 
         this.board = [];
@@ -164,11 +193,11 @@ class Chess {
         this.moveCount = parseInt(fenArr[5], 10);
     }
 
-    posToPiece(pos) {
+    posToPiece(pos: Position) {
         return this.board[pos.rank][pos.file];
     }
 
-    valid(start, dst) {
+    valid(start: Position, dst: Position) {
         let diff = {
             rank: dst.rank - start.rank,
             file: dst.file - start.file
@@ -178,7 +207,7 @@ class Chess {
         if ((this.turn === "w" ? blackPieceSet : whitePieceSet).has(this.posToPiece(start))) return false;
         if ((this.turn === "w" ? whitePieceSet : blackPieceSet).has(this.posToPiece(dst))) return false;
 
-        let piece = pieces[this.posToPiece(start)];
+        let piece: Piece = pieces[this.posToPiece(start)];
         let direction = piece.moveSet.find(element =>
             piece.absoluteEquals ? posEquals(element, diff) : posRelativeEqual(element, diff));
         if (!direction) return false;
@@ -190,8 +219,8 @@ class Chess {
             pos = posAdd(pos, direction);
         }
 
-        if ("valid" in direction) {
-            if (!direction["valid"](this, dst)) return false;
+        if (direction.valid) {
+            if (!direction.valid(this, dst)) return false;
         }
         let chessCopy = new Chess(this);
         chessCopy.move(start, dst);
@@ -199,7 +228,7 @@ class Chess {
         return true;
     }
 
-    move(start, dst) {
+    move(start: Position, dst: Position) {
         // TODO implement castling and en passant
 
         if (this.posToPiece(dst) !== "" || this.posToPiece(start).toLowerCase() === "p") {
@@ -209,7 +238,7 @@ class Chess {
         }
 
         this.enPassant = "-";
-        let updateEnPassant = (pawn, rank, rankLetter) => {
+        let updateEnPassant = (pawn: string, rank: number, rankLetter: string) => {
             let oppositePawn = pawn === "p" ? "P" : "p";
             if (this.posToPiece(start) === pawn && Math.abs(posSubtract(dst, start).rank) === 2) {
                 if (start.file > 0 && this.posToPiece({ file: start.file - 1, rank: rank}) === oppositePawn ||
@@ -221,7 +250,7 @@ class Chess {
         updateEnPassant("p", 3, "6");
         updateEnPassant("P", 4, "3");
 
-        let updateCastling = (king, queen, rook, rank) => {
+        let updateCastling = (king: string, queen: string, rook: string, rank: number) => {
             if (this.castlingRights.includes(king) || this.castlingRights.includes(queen)) {
                 if (this.posToPiece(start) === king) {
                     this.castlingRights = this.castlingRights.replace(king, "");
@@ -257,7 +286,7 @@ class Chess {
         // returns normal, check, checkmate, 50move
     }
 
-    findCheckingPieces(color) {
+    findCheckingPieces(color: string) {
         let rank = this.board.findIndex(element =>
             color === "w" && element.includes("K") ||
             color === "b" && element.includes("k"));
@@ -271,11 +300,11 @@ class Chess {
         return this.findAttackingPieces(color === "w" ? "b" : "w", kingPos)
     }
 
-    findAttackingPieces(color, target) {
-        let checkingPieces = [];
+    findAttackingPieces(color: string, target: Position) {
+        let checkingPieces: Array<Position> = [];
         let oppositePieceSet = color === "w" ? blackPieceSet : whitePieceSet;
 
-        let isValid = (pos) =>
+        let isValid = (pos: Position) =>
             0 <= pos.file &&
             pos.file < 8 &&
             0 <= pos.rank &&
@@ -291,8 +320,8 @@ class Chess {
                 }
                 if (!isValid(pos)) return;
                 if (this.posToPiece(pos) !== pieceType) return;
-                if ("valid" in element) {
-                    if (!element["valid"](this, target)) return;
+                if (element.valid) {
+                    if (element.valid(this, target)) return;
                 }
 
                 checkingPieces.push(pos)
