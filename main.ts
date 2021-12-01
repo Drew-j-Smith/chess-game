@@ -1,4 +1,6 @@
-var chess;
+// import { Chess } from "./chess";
+
+var chess: Chess;
 var moveAudio = new Audio('./public_sound_standard_Move.mp3');
 var captureAudio = new Audio('./public_sound_standard_Capture.mp3');
 
@@ -22,9 +24,12 @@ $(function generateBoard() {
 
     $(":root").mousemove(() => { // kinda a workaround but idk how to do it better
         if ($("chess-board").height() !== $("chess-board").width()) {
-            $(":root").css("--square-size", $("chess-board").width() / 8 + "px");
-            $("chess-board").height($("chess-board").width());
-            $("chess-piece").draggable("option", "cursorAt", { top: $("chess-board").width() / 16, left: $("chess-board").width() / 16 } );
+            let width = $("chess-board").width();
+            if (width) {
+                $(":root").css("--square-size", width / 8 + "px");
+                $("chess-board").height(width);
+                $("chess-piece").draggable("option", "cursorAt", { top: width / 16, left: width / 16 } );
+            }
         }
     });
 });
@@ -46,7 +51,7 @@ function pieceMovement() {
         }
     });
     $("chess-square").droppable({
-        accept: function (dropElem) {
+        accept: function (dropElem: JQuery<HTMLElement>) {
             return chess.valid(
                 {
                     file: dropElem.parent().index(), 
@@ -72,7 +77,7 @@ function pieceMovement() {
                     file: $(this).index(), 
                     rank: $(this).parent().index()
                 });
-            document.location.hash = `#${chess.fen().replaceAll(" ", "_")}`
+            document.location.hash = `#${chess.fen().split(" ").join("_")}`
             console.log(chess.fen());
             if (chess.findCheckingPieces("w").length > 0) {
                 $("chess-piece.K").parent().addClass("check");
@@ -92,13 +97,13 @@ function pieceMovement() {
 
 $(function generatePieces() {
     if (document.location.hash.length > 0) { 
-        loadFen(document.location.hash.substr(1).replaceAll("_", " "));
+        loadFen(document.location.hash.substr(1).split("_").join(" "));
     } else {
         loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     }
 })
 
-function loadFen(fen) {
+function loadFen(fen: string) {
     $("chess-piece").remove();
     chess = new Chess(fen);
     let file = 1;
