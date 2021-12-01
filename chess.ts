@@ -357,3 +357,9 @@ class Chess {
         return `${res} ${this.turn} ${this.castlingRights} ${this.enPassant} ${this.fiftyMove} ${this.moveCount}`
     }
 }
+
+if (typeof module !== 'undefined') {
+    module.exports = {
+        Chess
+    };
+}
