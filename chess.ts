@@ -11,7 +11,7 @@ interface Movement {
 interface Move extends Position {
     valid?: (chess: Chess, dst: Position) => boolean;
     move?: Movement;
-    remove?: (chess: Chess) => Position;
+    remove?: (chess: Chess) => Position | undefined;
 }
 
 interface Piece {
@@ -50,18 +50,26 @@ const knightMoves: Array<Move> = [
     { file: -2, rank: -1 },
     { file: -1, rank: -2 }
 ];
-const squareNonEmpty = (chess: Chess, dst: Position) => chess.posToPiece(dst) !== "";
 const squareEmpty = (chess: Chess, dst: Position) => chess.posToPiece(dst) === "";
+const pawnTakeValid = (chess: Chess, dst: Position) => chess.posToPiece(dst) !== "" || posEquals(dst, notationToPos(chess.enPassant));
+const enPassantRemove = (chess: Chess) => {
+    if (chess.enPassant === "-") {
+        return;
+    }
+    let pos = notationToPos(chess.enPassant);
+    pos.rank = pos.rank === 2 ? 3 : 4;
+    return pos;
+}
 const blackPawnMoves: Array<Move> = [
-    { file: -1, rank: 1, valid: squareNonEmpty },
+    { file: -1, rank: 1, valid: pawnTakeValid, remove: enPassantRemove },
     { file: 0, rank: 1, valid: squareEmpty },
-    { file: 1, rank: 1, valid: squareNonEmpty },
+    { file: 1, rank: 1, valid: pawnTakeValid, remove: enPassantRemove },
     { file: 0, rank: 2, valid: (chess: Chess, dst: Position) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 2 }) && dst.rank === 3 }
 ];
 const whitePawnMoves: Array<Move> = [
-    { file: -1, rank: -1, valid: squareNonEmpty },
+    { file: -1, rank: -1, valid: pawnTakeValid, remove: enPassantRemove },
     { file: 0, rank: -1, valid: squareEmpty },
-    { file: 1, rank: -1, valid: squareNonEmpty },
+    { file: 1, rank: -1, valid: pawnTakeValid, remove: enPassantRemove },
     { file: 0, rank: -2, valid: (chess: Chess, dst: Position) => squareEmpty(chess, dst) && squareEmpty(chess, { file: dst.file, rank: 5 }) && dst.rank === 4 }
 ];
 const blackCastling: Array<Move> = [
@@ -184,6 +192,12 @@ const posSubtract = (first: Position, second: Position) => {
         rank: first.rank - second.rank
     };
 };
+const notationToPos = (notation: String) => {
+    return {
+        file: notation.charCodeAt(0) - "a".charCodeAt(0),
+        rank: 8 - parseInt(notation.charAt(1))
+    }
+}
 
 class Chess {
 
@@ -286,7 +300,9 @@ class Chess {
         }
         if (move.remove) {
             let remove = move.remove(this);
-            this.board[remove.rank][remove.file] = "";
+            if (remove) {
+                this.board[remove.rank][remove.file] = "";
+            }
         }
 
         if (this.posToPiece(dst) !== "" || this.posToPiece(start).toLowerCase() === "p") {

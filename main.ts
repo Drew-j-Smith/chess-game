@@ -64,12 +64,22 @@ function pieceMovement() {
                 $(`chess-board chess-row:nth-child(${move.move.dst.rank + 1}) chess-square:nth-child(${move.move.dst.file + 1})`).append
                 ($(`chess-board chess-row:nth-child(${move.move.start.rank + 1}) chess-square:nth-child(${move.move.start.file + 1}) chess-piece`));
             }
+            (() => {
+                if (move.remove) {
+                    let remove = move.remove(chess);
+                    if (remove) {
+                        $(`chess-board chess-row:nth-child(${remove.rank + 1}) chess-square:nth-child(${remove.file + 1})`).children().remove();
+                        captureAudio.play();
+                        return;
+                    }
+                }
 
-            if ($(this).children().length === 0) {
-                moveAudio.play();
-            } else {
-                captureAudio.play();
-            }
+                if ($(this).children().length === 0) {
+                    moveAudio.play();
+                } else {
+                    captureAudio.play();
+                }
+            })();
 
             chess.move(
                 {
