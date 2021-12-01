@@ -1,5 +1,7 @@
 :root {
     --square-size: 100px;
+    --dark-square-color: lightblue;
+    --light-square-color: white;
 }
 
 chess-board {
@@ -17,11 +19,11 @@ chess-square {
 }
 
 .dark-square {
-    background-color: lightblue;
+    background-color: var(--dark-square-color);
 }
 
 .light-square {
-    background-color: white;
+    background-color: var(--light-square-color);
 }
 
 .dragging {
@@ -39,5 +41,13 @@ chess-piece {
 chess-row {
     display: inline-grid;
     grid-template-columns: repeat(8, var(--square-size));
+}
+
+chess-square.dark-square.check {
+    background: radial-gradient(ellipse at center, red 0%, var(--dark-square-color) 80%);
+}
+
+chess-square.light-square.check {
+    background: radial-gradient(ellipse at center, red 0%, var(--light-square-color) 80%);
 }
 

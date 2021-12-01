@@ -74,8 +74,16 @@ function pieceMovement() {
                 });
             document.location.hash = `#${chess.fen().replaceAll(" ", "_")}`
             console.log(chess.fen());
-            console.log(chess.findCheckingPieces("w"));
-            console.log(chess.findCheckingPieces("b"));
+            if (chess.findCheckingPieces("w").length > 0) {
+                $("chess-piece.K").parent().addClass("check");
+            } else {
+                $("chess-piece.K").parent().removeClass("check");
+            }
+            if (chess.findCheckingPieces("b").length > 0) {
+                $("chess-piece.k").parent().addClass("check");
+            } else {
+                $("chess-piece.k").parent().removeClass("check");
+            }
             $(this).children().remove();
             $(this).append(ui.draggable);
         }
@@ -111,5 +119,11 @@ function loadFen(fen) {
         file++;
     }
     pieceMovement();
+    if (chess.findCheckingPieces("w").length > 0) {
+        $("chess-piece.K").parent().addClass("check");
+    }
+    if (chess.findCheckingPieces("b").length > 0) {
+        $("chess-piece.k").parent().addClass("check");
+    }
 }
 
