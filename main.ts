@@ -51,18 +51,22 @@ function pieceMovement() {
         }
     });
     $("chess-square").droppable({
-        accept: function (dropElem: JQuery<HTMLElement>) {
-            return chess.valid(
+        drop: function (event, ui) {
+            let move = chess.valid(
                 {
-                    file: dropElem.parent().index(), 
-                    rank: dropElem.parent().parent().index()
-                },
+                    file: ui.draggable.parent().index(), 
+                    rank: ui.draggable.parent().parent().index()},
                 {
                     file: $(this).index(), 
                     rank: $(this).parent().index()
-                });
-        },
-        drop: function (event, ui) {
+                }
+            );
+            if (!move) return;
+            if (move.move) {
+                $(`chess-board :nth-child(${move.move.dst.rank + 1}) :nth-child(${move.move.dst.file + 1})`).append
+                ($(`chess-board chess-row:nth-child(${move.move.start.rank + 1}) chess-square:nth-child(${move.move.start.file + 1}) chess-piece`));
+            }
+
             if ($(this).children().length === 0) {
                 moveAudio.play();
             } else {
@@ -76,7 +80,9 @@ function pieceMovement() {
                 {
                     file: $(this).index(), 
                     rank: $(this).parent().index()
-                });
+                }, 
+                move
+            );
             document.location.hash = `#${chess.fen().split(" ").join("_")}`
             console.log(chess.fen());
             if (chess.findCheckingPieces("w").length > 0) {

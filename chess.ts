@@ -3,8 +3,15 @@ interface Position {
     rank: number;
 }
 
+interface Movement {
+    start: Position;
+    dst: Position;
+}
+
 interface Move extends Position {
     valid?: (chess: Chess, dst: Position) => boolean;
+    move?: Movement;
+    remove?: (chess: Chess) => Position;
 }
 
 interface Piece {
@@ -66,10 +73,20 @@ const blackCastling: Array<Move> = [
             squareEmpty(chess, { rank: 0, file: 5 }) &&
             squareEmpty(chess, { rank: 0, file: 6 }) &&
             chess.findAttackingPieces("w", { rank: 0, file: 5 }).length === 0 &&
-            chess.findAttackingPieces("w", { rank: 0, file: 4 }).length === 0
+            chess.findAttackingPieces("w", { rank: 0, file: 4 }).length === 0,
+        move: {
+            start: {
+                file: 7,
+                rank: 0
+            },
+            dst: {
+                file: 5,
+                rank: 0
+            }
+        }
     },
     {
-        file: -3,
+        file: -2,
         rank: 0,
         valid: (chess: Chess, dst: Position) =>
             chess.castlingRights.includes("q") &&
@@ -77,7 +94,17 @@ const blackCastling: Array<Move> = [
             squareEmpty(chess, { rank: 0, file: 2 }) &&
             squareEmpty(chess, { rank: 0, file: 1 }) &&
             chess.findAttackingPieces("w", { rank: 0, file: 3 }).length === 0 &&
-            chess.findAttackingPieces("w", { rank: 0, file: 4 }).length === 0
+            chess.findAttackingPieces("w", { rank: 0, file: 4 }).length === 0,
+        move: {
+            start: {
+                file: 0,
+                rank: 0
+            },
+            dst: {
+                file: 3,
+                rank: 0
+            }
+        }
     }
 ]
 const whiteCastling: Array<Move> = [
@@ -89,10 +116,20 @@ const whiteCastling: Array<Move> = [
             squareEmpty(chess, { rank: 7, file: 5 }) &&
             squareEmpty(chess, { rank: 7, file: 6 }) &&
             chess.findAttackingPieces("b", { rank: 7, file: 5 }).length === 0 &&
-            chess.findAttackingPieces("b", { rank: 7, file: 4 }).length === 0
+            chess.findAttackingPieces("b", { rank: 7, file: 4 }).length === 0,
+        move: {
+            start: {
+                file: 7,
+                rank: 7
+            },
+            dst: {
+                file: 5,
+                rank: 7
+            }
+        }
     },
     {
-        file: -3,
+        file: -2,
         rank: 0,
         valid: (chess: Chess, dst: Position) =>
             chess.castlingRights.includes("Q") &&
@@ -100,7 +137,17 @@ const whiteCastling: Array<Move> = [
             squareEmpty(chess, { rank: 7, file: 2 }) &&
             squareEmpty(chess, { rank: 7, file: 1 }) &&
             chess.findAttackingPieces("b", { rank: 7, file: 3 }).length === 0 &&
-            chess.findAttackingPieces("b", { rank: 7, file: 4 }).length === 0
+            chess.findAttackingPieces("b", { rank: 7, file: 4 }).length === 0,
+        move: {
+            start: {
+                file: 0,
+                rank: 7
+            },
+            dst: {
+                file: 3,
+                rank: 7
+            }
+        }
     }
 ]
 
@@ -203,33 +250,42 @@ class Chess {
             file: dst.file - start.file
         };
 
-        if (posEquals(start, dst)) return false;
-        if ((this.turn === "w" ? blackPieceSet : whitePieceSet).has(this.posToPiece(start))) return false;
-        if ((this.turn === "w" ? whitePieceSet : blackPieceSet).has(this.posToPiece(dst))) return false;
+        if (posEquals(start, dst)) return;
+        if ((this.turn === "w" ? blackPieceSet : whitePieceSet).has(this.posToPiece(start))) return;
+        if ((this.turn === "w" ? whitePieceSet : blackPieceSet).has(this.posToPiece(dst))) return;
 
         let piece: Piece = pieces[this.posToPiece(start)];
         let direction = piece.moveSet.find(element =>
             piece.allowMultiples ? posRelativeEqual(element, diff): posEquals(element, diff));
-        if (!direction) return false;
+        if (!direction) return;
         if (Math.abs(direction.rank) === 1 && Math.abs(direction.file) === 1 &&
-            Math.abs(diff.rank) !== Math.abs(diff.file)) return false;
+            Math.abs(diff.rank) !== Math.abs(diff.file)) return;
         let pos = posAdd(start, direction);
         while (!posEquals(pos, dst)) {
-            if (this.posToPiece(pos) !== "") return false;
+            if (this.posToPiece(pos) !== "") return;
             pos = posAdd(pos, direction);
         }
 
         if (direction.valid) {
-            if (!direction.valid(this, dst)) return false;
+            if (!direction.valid(this, dst)) return;
         }
         let chessCopy = new Chess(this);
-        chessCopy.move(start, dst);
-        if (chessCopy.findCheckingPieces(this.turn).length > 0) return false;
-        return true;
+        chessCopy.move(start, dst, direction);
+        if (chessCopy.findCheckingPieces(this.turn).length > 0) return;
+        return direction;
     }
 
-    move(start: Position, dst: Position) {
+    move(start: Position, dst: Position, move: Move) {
         // TODO implement castling and en passant
+
+        if (move.move) {
+            this.board[move.move.dst.rank][move.move.dst.file] = this.posToPiece(move.move.start);
+            this.board[move.move.start.rank][move.move.start.file] = "";
+        }
+        if (move.remove) {
+            let remove = move.remove(this);
+            this.board[remove.rank][remove.file] = "";
+        }
 
         if (this.posToPiece(dst) !== "" || this.posToPiece(start).toLowerCase() === "p") {
             this.fiftyMove = 0;
