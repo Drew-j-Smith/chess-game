@@ -1,6 +1,6 @@
 // import { Chess } from "./chess";
 
-var chess: Chess;
+var chess: Chess = new Chess();
 var moveAudio = new Audio('./public_sound_standard_Move.mp3');
 var captureAudio = new Audio('./public_sound_standard_Capture.mp3');
 
@@ -101,15 +101,13 @@ function pieceMovement() {
 
 $(function generatePieces() {
     if (document.location.hash.length > 0) { 
-        loadFen(document.location.hash.substr(1).split("_").join(" "));
-    } else {
-        loadFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    }
+        chess = new Chess(document.location.hash.substr(1).split("_").join(" "));
+    } 
+    loadFen(chess.fen());
 })
 
 function loadFen(fen: string) {
     $("chess-piece").remove();
-    chess = new Chess(fen);
     let file = 1;
     let rank = 1;
     for (let i = 0; i < fen.length; i++) {

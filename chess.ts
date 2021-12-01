@@ -194,8 +194,10 @@ class Chess {
     fiftyMove: number = 0;
     moveCount: number = 0;
 
-    constructor(variable: Chess | string) {
-        if (variable instanceof Chess) {
+    constructor(variable?: Chess | string) {
+        if (!variable) {
+            this.stringConstructor("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        } else if (variable instanceof Chess) {
             this.copyConstructor(variable);
         } else {
             this.stringConstructor(variable);
