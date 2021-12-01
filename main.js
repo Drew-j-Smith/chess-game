@@ -9,16 +9,16 @@ customElements.define("chess-piece", class extends HTMLElement {});
 
 $(function generateBoard() {
     for (let i = 0; i < 8; i++) {
-        $("chess-board").append(`<chess-row></chess-row>`)
+        $("chess-board").append("<chess-row></chess-row>")
         for (let j = 0; j < 8; j++) {
-            $("chess-board chess-row").last().append(`<chess-square></chess-square>`);
+            $("chess-board chess-row").last().append("<chess-square></chess-square>");
         }
     }
-    $("chess-board chess-row:nth-child(2n) chess-square:nth-child(2n+1)").addClass("dark-square");
-    $("chess-board chess-row:nth-child(2n + 1) chess-square:nth-child(2n)").addClass("dark-square");
+    $("chess-board :nth-child(2n) :nth-child(2n + 1)").addClass("dark-square");
+    $("chess-board :nth-child(2n + 1) :nth-child(2n)").addClass("dark-square");
 
-    $("chess-board chess-row:nth-child(2n) chess-square:nth-child(2n)").addClass("light-square");
-    $("chess-board chess-row:nth-child(2n + 1) chess-square:nth-child(2n + 1)").addClass("light-square");
+    $("chess-board :nth-child(2n) :nth-child(2n)").addClass("light-square");
+    $("chess-board :nth-child(2n + 1) :nth-child(2n + 1)").addClass("light-square");
 
     $(":root").mousemove(() => { // kinda a workaround but idk how to do it better
         if ($("chess-board").height() !== $("chess-board").width()) {
@@ -106,7 +106,7 @@ function loadFen(fen) {
             file += parseInt(fen[i], 10);
             continue
         }
-        $(`chess-board chess-row:nth-child(${rank}) chess-square:nth-child(${file})`)
+        $(`chess-board :nth-child(${rank}) :nth-child(${file})`)
                 .append(`<chess-piece class="${fen[i]}"></chess-piece>`);
         file++;
     }
