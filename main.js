@@ -2,34 +2,10 @@ var chess;
 var moveAudio = new Audio('./public_sound_standard_Move.mp3');
 var captureAudio = new Audio('./public_sound_standard_Capture.mp3');
 
-class chess_board extends HTMLElement {
-    constructor() {
-        super();
-    }
-}
-
-class chess_row extends HTMLElement {
-    constructor() {
-        super();
-    }
-}
-
-class chess_square extends HTMLElement {
-    constructor() {
-        super();
-    }
-}
-
-class chess_piece extends HTMLElement {
-    constructor() {
-        super();
-    }
-}
-
-customElements.define("chess-board", chess_board);
-customElements.define("chess-row", chess_row);
-customElements.define("chess-square", chess_square);
-customElements.define("chess-piece", chess_piece);
+customElements.define("chess-board", class extends HTMLElement {});
+customElements.define("chess-row", class extends HTMLElement {});
+customElements.define("chess-square", class extends HTMLElement {});
+customElements.define("chess-piece", class extends HTMLElement {});
 
 $(function generateBoard() {
     for (let i = 0; i < 8; i++) {
