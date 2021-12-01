@@ -7,6 +7,15 @@ interface Move extends Position {
     valid?: (chess: Chess, dst: Position) => boolean;
 }
 
+interface Piece {
+    moveSet: Array<Move>;
+    allowMultiples: boolean;
+}
+
+interface Pieces {
+    [key: string]: Piece
+}
+
 const whitePieceSet = new Set(["R", "N", "B", "Q", "K", "P"]);
 const blackPieceSet = new Set(["r", "n", "b", "q", "k", "p"]);
 const pieceSet = new Set();
@@ -95,28 +104,19 @@ const whiteCastling: Array<Move> = [
     }
 ]
 
-interface Piece {
-    moveSet: Array<Move>;
-    absoluteEquals: boolean;
-}
-
-interface Pieces {
-    [key: string]: Piece
-}
-
 const pieces: Pieces = {
-    r: { moveSet: ranksAndFiles, absoluteEquals: false },
-    R: { moveSet: ranksAndFiles, absoluteEquals: false },
-    n: { moveSet: knightMoves, absoluteEquals: true },
-    N: { moveSet: knightMoves, absoluteEquals: true },
-    b: { moveSet: diagonals, absoluteEquals: false },
-    B: { moveSet: diagonals, absoluteEquals: false },
-    q: { moveSet: ranksAndFiles.concat(diagonals), absoluteEquals: false },
-    Q: { moveSet: ranksAndFiles.concat(diagonals), absoluteEquals: false },
-    k: { moveSet: ranksAndFiles.concat(diagonals).concat(blackCastling), absoluteEquals: true },
-    K: { moveSet: ranksAndFiles.concat(diagonals).concat(whiteCastling), absoluteEquals: true },
-    p: { moveSet: blackPawnMoves, absoluteEquals: true },
-    P: { moveSet: whitePawnMoves, absoluteEquals: true }
+    r: { moveSet: ranksAndFiles, allowMultiples: true },
+    R: { moveSet: ranksAndFiles, allowMultiples: true },
+    n: { moveSet: knightMoves, allowMultiples: false },
+    N: { moveSet: knightMoves, allowMultiples: false },
+    b: { moveSet: diagonals, allowMultiples: true },
+    B: { moveSet: diagonals, allowMultiples: true },
+    q: { moveSet: ranksAndFiles.concat(diagonals), allowMultiples: true },
+    Q: { moveSet: ranksAndFiles.concat(diagonals), allowMultiples: true },
+    k: { moveSet: ranksAndFiles.concat(diagonals).concat(blackCastling), allowMultiples: false },
+    K: { moveSet: ranksAndFiles.concat(diagonals).concat(whiteCastling), allowMultiples: false },
+    p: { moveSet: blackPawnMoves, allowMultiples: false },
+    P: { moveSet: whitePawnMoves, allowMultiples: false }
 };
 
 const posEquals = (first: Position, second: Position) => first.rank === second.rank && first.file === second.file;
@@ -209,7 +209,7 @@ class Chess {
 
         let piece: Piece = pieces[this.posToPiece(start)];
         let direction = piece.moveSet.find(element =>
-            piece.absoluteEquals ? posEquals(element, diff) : posRelativeEqual(element, diff));
+            piece.allowMultiples ? posRelativeEqual(element, diff): posEquals(element, diff));
         if (!direction) return false;
         if (Math.abs(direction.rank) === 1 && Math.abs(direction.file) === 1 &&
             Math.abs(diff.rank) !== Math.abs(diff.file)) return false;
@@ -315,13 +315,13 @@ class Chess {
             if (oppositePieceSet.has(pieceType)) continue;
             pieces[pieceType].moveSet.forEach(element => {
                 let pos = posSubtract(target, element);
-                while (isValid(pos) && this.posToPiece(pos) === "" && !pieces[pieceType].absoluteEquals) {
+                while (isValid(pos) && this.posToPiece(pos) === "" && pieces[pieceType].allowMultiples) {
                     pos = posSubtract(pos, element);
                 }
                 if (!isValid(pos)) return;
                 if (this.posToPiece(pos) !== pieceType) return;
                 if (element.valid) {
-                    if (element.valid(this, target)) return;
+                    if (!element.valid(this, target)) return;
                 }
 
                 checkingPieces.push(pos)
