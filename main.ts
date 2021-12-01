@@ -22,16 +22,14 @@ $(function generateBoard() {
     $("chess-board :nth-child(2n) :nth-child(2n)").addClass("light-square");
     $("chess-board :nth-child(2n + 1) :nth-child(2n + 1)").addClass("light-square");
 
-    $(":root").mousemove(() => { // kinda a workaround but idk how to do it better
-        if ($("chess-board").height() !== $("chess-board").width()) {
-            let width = $("chess-board").width();
-            if (width) {
-                $(":root").css("--square-size", width / 8 + "px");
-                $("chess-board").height(width);
-                $("chess-piece").draggable("option", "cursorAt", { top: width / 16, left: width / 16 } );
-            }
+    $(":root").on("mousemove", (() => { // kinda a workaround but idk how to do it better
+        let width = $("chess-board").width();
+        if (width && width !== $("chess-board").height()) {
+            $(":root").css("--square-size", width / 8 + "px");
+            $("chess-board").height(width);
+            $("chess-piece").draggable("option", "cursorAt", { top: width / 16, left: width / 16 } );
         }
-    });
+    }));
 });
 
 function pieceMovement() {
