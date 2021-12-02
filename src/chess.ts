@@ -199,7 +199,7 @@ const notationToPos = (notation: String) => {
     }
 }
 
-class Chess {
+export class Chess {
 
     board: Array<Array<string>> = [];
     turn: string = "";
@@ -448,10 +448,4 @@ class Chess {
 
         return `${res} ${this.turn} ${this.castlingRights} ${this.enPassant} ${this.fiftyMove} ${this.moveCount}`
     }
-}
-
-if (typeof module !== 'undefined') {
-    module.exports = {
-        Chess
-    };
 }

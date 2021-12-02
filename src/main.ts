@@ -1,4 +1,8 @@
-// import { Chess } from "./chess";
+import { Chess } from "./chess";
+import $ from "jquery";
+import 'jquery-ui/ui/core';
+import 'jquery-ui/ui/widgets/draggable';
+import 'jquery-ui/ui/widgets/droppable';
 
 var chess: Chess = new Chess();
 var moveAudio = new Audio('./public_sound_standard_Move.mp3');
