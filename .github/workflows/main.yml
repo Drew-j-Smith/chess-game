@@ -15,12 +15,11 @@ jobs:
           node-version: '14'
 
       - run: npm ci
-      - run: tsc
-      - run: rm .gitignore
+      - run: npm run build
 
       - name: GH Pages Deployment
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+          publish_dir: ./dist
           force_orphan: true
