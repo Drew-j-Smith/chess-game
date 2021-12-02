@@ -291,8 +291,7 @@ class Chess {
         return direction;
     }
 
-    move(start: Position, dst: Position, move: Move) {
-        // TODO implement castling and en passant
+    move(start: Position, dst: Position, move: Move, pawnPromotion?: string) {
 
         if (move.move) {
             this.board[move.move.dst.rank][move.move.dst.file] = this.posToPiece(move.move.start);
@@ -344,7 +343,24 @@ class Chess {
         updateCastling("k", "q", "r", 0);
         updateCastling("K", "Q", "R", 7);
 
-        this.board[dst.rank][dst.file] = this.posToPiece(start);
+        if (this.posToPiece(start) == "p" && dst.rank == 8) {
+            if (pawnPromotion && blackPieceSet.has(pawnPromotion) && pawnPromotion!== "p" && pawnPromotion!== "k") {
+                this.board[dst.rank][dst.file] = pawnPromotion;
+            } else {
+                this.board[dst.rank][dst.file] = "q";
+                pawnPromotion = "q";
+            }
+        } else if (this.posToPiece(start) == "P" && dst.rank == 0) {
+            if (pawnPromotion && whitePieceSet.has(pawnPromotion) && pawnPromotion!== "P" && pawnPromotion!== "K") {
+                this.board[dst.rank][dst.file] = pawnPromotion;
+            } else {
+                this.board[dst.rank][dst.file] = "Q";
+                pawnPromotion = "Q"
+            }
+        } else {
+            this.board[dst.rank][dst.file] = this.posToPiece(start);
+            pawnPromotion = undefined;
+        }
         this.board[start.rank][start.file] = "";
 
         if (this.turn === "w") {
@@ -353,6 +369,8 @@ class Chess {
             this.turn = "w";
             this.moveCount++;
         }
+
+        return pawnPromotion;
     }
 
     state() {

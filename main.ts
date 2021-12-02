@@ -81,7 +81,7 @@ function pieceMovement() {
                 }
             })();
 
-            chess.move(
+            let pawnPromotion = chess.move(
                 {
                     file: ui.draggable.parent().index(), 
                     rank: ui.draggable.parent().parent().index()},
@@ -91,6 +91,11 @@ function pieceMovement() {
                 }, 
                 move
             );
+            
+            if (pawnPromotion) {
+                ui.draggable.removeClass("p").removeClass("P").addClass(pawnPromotion);
+            }
+
             document.location.hash = `#${chess.fen().split(" ").join("_")}`
             console.log(chess.fen());
             if (chess.findCheckingPieces("w").length > 0) {
