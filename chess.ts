@@ -343,7 +343,7 @@ class Chess {
         updateCastling("k", "q", "r", 0);
         updateCastling("K", "Q", "R", 7);
 
-        if (this.posToPiece(start) == "p" && dst.rank == 8) {
+        if (this.posToPiece(start) == "p" && dst.rank == 7) {
             if (pawnPromotion && blackPieceSet.has(pawnPromotion) && pawnPromotion!== "p" && pawnPromotion!== "k") {
                 this.board[dst.rank][dst.file] = pawnPromotion;
             } else {
