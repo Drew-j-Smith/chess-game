@@ -1,0 +1,46 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install node
+        run: sudo apt install nodejs
+
+      - name: install typescript
+        run: npm install -g typescript
+
+      - name: install node types
+        run: npm install --save-dev @types/node
+
+      - name: install jquery types
+        run: npm install --save-dev @types/jquery
+
+      - name: install jquery ui types
+        run: npm install --save-dev @types/jqueryui
+
+      - name: change working directory
+        run: cd $GITHUB_WORKSPACE
+
+      - name: build project
+        run: tsc
+
+      - name: remove git ignore
+        run: rm .gitignore
+
+      - name: GH Pages Deployment
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          enable_jekyll: false
+          allow_empty_commit: false
+          force_orphan: true
+          publish_branch: gh-pages
