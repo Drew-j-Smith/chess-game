@@ -4,15 +4,16 @@
     --light-square-color: white;
 }
 
-chess-board {
+.chess-board {
     display: inline-grid;
     border: 1px solid black;
     grid-template-rows: repeat(8, var(--square-size));
+    grid-template-columns: repeat(8, var(--square-size));
     resize: horizontal;
     overflow: hidden;
 }
 
-chess-square {
+.chess-square {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -31,23 +32,18 @@ chess-square {
     background-color: cadetblue;
 }
 
-chess-piece {
+.chess-piece {
     user-select: none;
     width: var(--square-size);
     height: var(--square-size);
     background-size: contain;
 }
 
-chess-row {
-    display: inline-grid;
-    grid-template-columns: repeat(8, var(--square-size));
-}
-
-chess-square.dark-square.check {
+.dark-square.check {
     background: radial-gradient(ellipse at center, red 0%, var(--dark-square-color) 80%);
 }
 
-chess-square.light-square.check {
+.light-square.check {
     background: radial-gradient(ellipse at center, red 0%, var(--light-square-color) 80%);
 }
 
