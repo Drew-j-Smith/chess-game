@@ -5,7 +5,7 @@ const IndexPage = () => {
   return (
     <main>
       <title>Chess Game</title>
-      <ChessBoard/>
+      <ChessBoard squareSize="100px" darkSquareColor="lightblue" lightSquareColor="white"/>
     </main>
   );
 }

@@ -1,49 +1,5 @@
-:root {
-    --square-size: 100px;
-    --dark-square-color: lightblue;
-    --light-square-color: white;
-}
 
-.chess-board {
-    display: inline-grid;
-    border: 1px solid black;
-    grid-template-rows: repeat(8, var(--square-size));
-    grid-template-columns: repeat(8, var(--square-size));
-    resize: horizontal;
-    overflow: hidden;
-}
-
-.chess-square {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.dark-square {
-    background-color: var(--dark-square-color);
-}
-
-.light-square {
-    background-color: var(--light-square-color);
-}
-
-.dragging {
-    opacity: 50%;
-    background-color: cadetblue;
-}
-
-.chess-piece {
-    user-select: none;
-    width: var(--square-size);
-    height: var(--square-size);
-    background-size: contain;
-}
-
-.dark-square.check {
-    background: radial-gradient(ellipse at center, red 0%, var(--dark-square-color) 80%);
-}
-
-.light-square.check {
+.dark-square.check .light-square.check {
     background: radial-gradient(ellipse at center, red 0%, var(--light-square-color) 80%);
 }
 
