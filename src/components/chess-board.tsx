@@ -26,12 +26,6 @@ class ChessBoard extends React.Component<ChessBoardProps, ChessBoardState> {
         position: "relative"
     }
 
-    squareStyle: React.CSSProperties = {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
-    }
-
 
     render() {
         return <div style={this.style}>
@@ -40,9 +34,9 @@ class ChessBoard extends React.Component<ChessBoardProps, ChessBoardState> {
                     let file = index % 8;
                     let rank = (index - file) / 8;
                     if (file % 2 === rank % 2) {
-                        return <div key={index} style={{...this.squareStyle, backgroundColor: this.props.darkSquareColor}}></div>
+                        return <div key={index} style={{backgroundColor: this.props.darkSquareColor}}></div>
                     } else {
-                        return <div key={index} style={{...this.squareStyle, backgroundColor: this.props.lightSquareColor}}></div>
+                        return <div key={index} style={{backgroundColor: this.props.lightSquareColor}}></div>
                     }
                 })
             }
