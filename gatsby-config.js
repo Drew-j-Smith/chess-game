@@ -12,4 +12,5 @@ module.exports = {
       },
     },
   ],
+  pathPrefix: "/chess-game",
 };
