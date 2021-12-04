@@ -6,7 +6,7 @@ import ChessPiece from "./chess-piece"
 import { Chess } from "../chess"
 
 type ChessBoardProps = {
-    squareSize: string;
+    squareSize: number; //in pixels
     darkSquareColor: Property.Property.BackgroundColor;
     lightSquareColor: Property.Property.BackgroundColor;
 };
@@ -23,8 +23,8 @@ class ChessBoard extends React.Component<ChessBoardProps, ChessBoardState> {
     style: React.CSSProperties = {
         display: "inline-grid",
         border: "1px solid black",
-        gridTemplateRows: `repeat(8, ${this.props.squareSize})`,
-        gridTemplateColumns: `repeat(8, ${this.props.squareSize})`,
+        gridTemplateRows: `repeat(8, ${this.props.squareSize}px)`,
+        gridTemplateColumns: `repeat(8, ${this.props.squareSize}px)`,
         overflow: "visible",
         position: "relative"
     }
@@ -37,26 +37,27 @@ class ChessBoard extends React.Component<ChessBoardProps, ChessBoardState> {
                     let file = index % 8;
                     let rank = (index - file) / 8;
                     if (file % 2 === rank % 2) {
-                        return <div key={index} style={{backgroundColor: this.props.darkSquareColor}}></div>
+                        return <div key={index} style={{ backgroundColor: this.props.darkSquareColor }}></div>
                     } else {
-                        return <div key={index} style={{backgroundColor: this.props.lightSquareColor}}></div>
+                        return <div key={index} style={{ backgroundColor: this.props.lightSquareColor }}></div>
                     }
                 })
             }
             {
                 this.state.chess.board.map((row: string[], rank: number) =>
-                    [...row.map((value: string, file: number)=>{
+                    [...row.map((value: string, file: number) => {
                         if (value === "") return;
-                        return <ChessPiece 
-                        x={100*file}
-                        y={100*rank}
-                        width="100px"
-                        height="100px"
-                        type={value}
-                        dropCallback={(prevX: number, prevY: number, xDiff: number, yDiff: number) => { 
-                            console.log(prevX / 100, prevY / 100, Math.round((prevX + xDiff) / 100), Math.round((prevY + yDiff) / 100)); 
-                        }} 
-                    />
+                        return <ChessPiece
+                            x={this.props.squareSize * file}
+                            y={this.props.squareSize * rank}
+                            width={`${this.props.squareSize}px`}
+                            height={`${this.props.squareSize}px`}
+                            type={value}
+                            dropCallback={(prevX: number, prevY: number, xDiff: number, yDiff: number) => {
+                                console.log(prevX / this.props.squareSize, prevY / this.props.squareSize)
+                                console.log(Math.round((prevX + xDiff) / this.props.squareSize), Math.round((prevY + yDiff) / this.props.squareSize));
+                            }}
+                        />
                     })]
                 )
             }
