@@ -3,18 +3,21 @@ import "../piecesets/cburnett/cburnett.css"
 import Property from "csstype"
 
 import ChessPiece from "./chess-piece"
+import { Chess } from "../chess"
 
 type ChessBoardProps = {
     squareSize: string;
     darkSquareColor: Property.Property.BackgroundColor;
     lightSquareColor: Property.Property.BackgroundColor;
 };
-type ChessBoardState = {};
+type ChessBoardState = {
+    chess: Chess;
+};
 
 class ChessBoard extends React.Component<ChessBoardProps, ChessBoardState> {
     constructor(props: ChessBoardProps) {
         super(props);
-        this.state = {};
+        this.state = { chess: new Chess() };
     }
 
     style: React.CSSProperties = {
@@ -40,14 +43,23 @@ class ChessBoard extends React.Component<ChessBoardProps, ChessBoardState> {
                     }
                 })
             }
-            <ChessPiece 
-                x={100}
-                y={100}
-                width="100px"
-                height="100px"
-                type="r"
-                dropCallback={(prevX: number, prevY: number, x: number, y: number) => { console.log(prevX + x, prevY + y); }} 
-            />
+            {
+                this.state.chess.board.map((row: string[], rank: number) =>
+                    [...row.map((value: string, file: number)=>{
+                        if (value === "") return;
+                        return <ChessPiece 
+                        x={100*file}
+                        y={100*rank}
+                        width="100px"
+                        height="100px"
+                        type={value}
+                        dropCallback={(prevX: number, prevY: number, xDiff: number, yDiff: number) => { 
+                            console.log(prevX / 100, prevY / 100, Math.round((prevX + xDiff) / 100), Math.round((prevY + yDiff) / 100)); 
+                        }} 
+                    />
+                    })]
+                )
+            }
         </div>
     }
 }

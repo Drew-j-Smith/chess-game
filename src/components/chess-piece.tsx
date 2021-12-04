@@ -8,7 +8,7 @@ type ChessPieceProps = {
     x: number,
     y: number,
     type: string,
-    dropCallback: (prevX: number, prevY: number, x: number, y: number) => void;
+    dropCallback: (prevX: number, prevY: number, xDiff: number, yDiff: number) => void;
 };
 type ChessPieceState = {
     dragging: boolean;
