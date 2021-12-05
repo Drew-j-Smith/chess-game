@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkchess_game=self.webpackChunkchess_game||[]).push([[218],{938:function(e,n,t){t.r(n);var l=t(7294);n.default=function(){return l.createElement("main",null,l.createElement("title",null,"Not found"),l.createElement("h1",null,"Not found"))}}}]);
+//# sourceMappingURL=component---src-pages-404-tsx-577245f59db22eac7a6b.js.map
