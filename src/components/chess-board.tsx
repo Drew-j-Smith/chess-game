@@ -48,14 +48,29 @@ class ChessBoard extends React.Component<ChessBoardProps, ChessBoardState> {
                     [...row.map((value: string, file: number) => {
                         if (value === "") return;
                         return <ChessPiece
+                            key={rank * 8 + file}
                             x={this.props.squareSize * file}
                             y={this.props.squareSize * rank}
                             width={`${this.props.squareSize}px`}
                             height={`${this.props.squareSize}px`}
                             type={value}
                             dropCallback={(prevX: number, prevY: number, xDiff: number, yDiff: number) => {
-                                console.log(prevX / this.props.squareSize, prevY / this.props.squareSize)
-                                console.log(Math.round((prevX + xDiff) / this.props.squareSize), Math.round((prevY + yDiff) / this.props.squareSize));
+                                let start = { file: prevX / this.props.squareSize, rank: prevY / this.props.squareSize };
+                                let dst = { file: Math.round((prevX + xDiff) / this.props.squareSize), rank: Math.round((prevY + yDiff) / this.props.squareSize) };
+                                let move = this.state.chess.valid(start, dst);
+                                
+                                if (move) {
+                                    this.setState((prevState) => {
+                                        let newState = new Chess(prevState.chess);
+                                        // I don't know why ts thinks move can be undefinded
+                                        // @ts-ignore
+                                        newState.move(start, dst, move);
+                                        return { chess: newState};
+                                    })
+                                    return true;
+                                }
+                                return false;
+                                
                             }}
                         />
                     })]

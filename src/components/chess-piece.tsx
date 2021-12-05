@@ -8,7 +8,7 @@ type ChessPieceProps = {
     x: number,
     y: number,
     type: string,
-    dropCallback: (prevX: number, prevY: number, xDiff: number, yDiff: number) => void;
+    dropCallback: (prevX: number, prevY: number, xDiff: number, yDiff: number) => boolean;
 };
 type ChessPieceState = {
     dragging: boolean;
@@ -43,7 +43,8 @@ class ChessPiece extends React.Component<ChessPieceProps, ChessPieceState> {
                 onStart={()=> this.setState({dragging: true})}
                 onStop={(e, data) => { 
                     this.setState({dragging: false});
-                    this.props.dropCallback(this.props.x, this.props.y, data.lastX , data.lastY); 
+                    if (this.props.dropCallback(this.props.x, this.props.y, data.lastX , data.lastY))
+                        return false;
                 }}
                 position={{x: 0, y: 0}}>
                 <div className={this.props.type} style={{...this.style, zIndex: this.state.dragging ? 100 : 1}}></div>
