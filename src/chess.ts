@@ -198,6 +198,11 @@ const notationToPos = (notation: String) => {
         rank: 8 - parseInt(notation.charAt(1))
     }
 }
+const isValid = (pos: Position) =>
+    0 <= pos.file &&
+    pos.file < 8 &&
+    0 <= pos.rank &&
+    pos.rank < 8;
 
 export class Chess {
 
@@ -265,6 +270,9 @@ export class Chess {
             rank: dst.rank - start.rank,
             file: dst.file - start.file
         };
+
+        if (!isValid(start)) return;
+        if (!isValid(dst)) return;
 
         if (posEquals(start, dst)) return;
         if ((this.turn === "w" ? blackPieceSet : whitePieceSet).has(this.posToPiece(start))) return;
@@ -395,12 +403,6 @@ export class Chess {
     findAttackingPieces(color: string, target: Position) {
         let checkingPieces: Array<Position> = [];
         let oppositePieceSet = color === "w" ? blackPieceSet : whitePieceSet;
-
-        let isValid = (pos: Position) =>
-            0 <= pos.file &&
-            pos.file < 8 &&
-            0 <= pos.rank &&
-            pos.rank < 8;
 
 
         for (const pieceType in pieces) {
