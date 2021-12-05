@@ -11,9 +11,6 @@ import moveAudioUrl from "../sounds/public_sound_standard_Move.mp3"
 // @ts-ignore
 import captureAudioUrl from "../sounds/public_sound_standard_Capture.mp3"
 
-var moveAudio = new Audio(moveAudioUrl);
-var captureAudio = new Audio(captureAudioUrl);
-
 type ChessBoardProps = {
     squareSize: number; //in pixels
     darkSquareColor: Property.Property.BackgroundColor;
@@ -24,9 +21,16 @@ type ChessBoardState = {
 };
 
 class ChessBoard extends React.Component<ChessBoardProps, ChessBoardState> {
+    moveAudio: HTMLAudioElement | undefined = undefined;
+    captureAudio: HTMLAudioElement | undefined = undefined;
+
     constructor(props: ChessBoardProps) {
         super(props);
         this.state = { chess: new Chess() };
+        if (typeof Audio !== 'undefined') {
+            this.moveAudio = new Audio(moveAudioUrl);
+            this.captureAudio = new Audio(captureAudioUrl);
+        }
     }
 
     style: React.CSSProperties = {
@@ -41,6 +45,7 @@ class ChessBoard extends React.Component<ChessBoardProps, ChessBoardState> {
 
     render() {
         return <div style={this.style}>
+            <script></script>
             {
                 Array(64).fill(null).map((value: any, index: number) => {
                     let file = index % 8;
@@ -69,12 +74,18 @@ class ChessBoard extends React.Component<ChessBoardProps, ChessBoardState> {
                                 let move = this.state.chess.valid(start, dst);
                                 
                                 if (move) {
-
+                                    
+                                    
                                     if (move.remove && move.remove(this.state.chess) || this.state.chess.board[dst.rank][dst.file] !== "") {
-                                        captureAudio.play();
+                                        if (this.captureAudio) {
+                                            this.captureAudio.play();
+                                        }
                                     } else {
-                                        moveAudio.play();
+                                        if (this.moveAudio){
+                                            this.moveAudio.play();
+                                        }
                                     }
+                                    
 
                                     this.setState((prevState) => {
                                         let newState = new Chess(prevState.chess);
