@@ -5,6 +5,15 @@ import Property from "csstype"
 import ChessPiece from "./chess-piece"
 import { Chess } from "../chess"
 
+// typescipt doesn't understand i guess
+// @ts-ignore
+import moveAudioUrl from "../sounds/public_sound_standard_Move.mp3"
+// @ts-ignore
+import captureAudioUrl from "../sounds/public_sound_standard_Capture.mp3"
+
+var moveAudio = new Audio(moveAudioUrl);
+var captureAudio = new Audio(captureAudioUrl);
+
 type ChessBoardProps = {
     squareSize: number; //in pixels
     darkSquareColor: Property.Property.BackgroundColor;
@@ -60,6 +69,13 @@ class ChessBoard extends React.Component<ChessBoardProps, ChessBoardState> {
                                 let move = this.state.chess.valid(start, dst);
                                 
                                 if (move) {
+
+                                    if (move.remove && move.remove(this.state.chess) || this.state.chess.board[dst.rank][dst.file] !== "") {
+                                        captureAudio.play();
+                                    } else {
+                                        moveAudio.play();
+                                    }
+
                                     this.setState((prevState) => {
                                         let newState = new Chess(prevState.chess);
                                         // I don't know why ts thinks move can be undefinded
